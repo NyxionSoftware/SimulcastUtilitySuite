@@ -14,7 +14,7 @@
     <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/blob/master/LICENSE"><img src="https://img.shields.io/github/license/NyxionSoftware/SimulcastUtilitySuite?style=flat"></a>
     <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/stargazers"><img src="https://img.shields.io/github/stars/NyxionSoftware/SimulcastUtilitySuite?style=flat"></a>
     <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/issues"><img src="https://img.shields.io/github/issues/NyxionSoftware/SimulcastUtilitySuite?style=flat"></a>
-    <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/releases"><img src="https://img.shields.io/github/v/release/NyxionSoftware/SimulcastUtilitySuite?style=flat"></a>
+    <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/releases"><img src="https://img.shields.io/github/v/release/NyxionSoftware/SimulcastUtilitySuite?include_prereleases"></a>
 </p>
 
 ---
