@@ -361,4 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/RTNSchedulePlugin/RTNSchedulePlugin.csproj
+
+# Remove Testing Plugin
+/RTNSchedulePlugin/
