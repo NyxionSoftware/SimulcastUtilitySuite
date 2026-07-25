@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="RTNSchedulePlugin/RTNSchedulePlugin.csproj" />
+  <Project Path="SimulcastUtility.Plugin.Abstractions/SimulcastUtility.Plugin.Abstractions.csproj" />
+  <Project Path="SimulcastUtility.Shared/SimulcastUtility.Shared.csproj" />
+  <Project Path="SimulcastUtility/SimulcastUtility.csproj" />
+</Solution>
