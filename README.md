@@ -11,7 +11,7 @@
 <p align="center">
     <a href="https://dotnet.microsoft.com/"><img src="https://img.shields.io/badge/.NET-10-512BD4?style=flat&logo=dotnet&logoColor=white"></a>
     <a href="https://learn.microsoft.com/dotnet/desktop/wpf/"><img src="https://img.shields.io/badge/WPF-Windows-0078D6?style=flat"></a>
-    <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/blob/master/LICENSE"><img src="https://img.shields.io/github/license/NyxionSoftware/SimulcastUtilitySuite?style=flat"></a>
+    <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/blob/master/LICENSE"><img src="https://img.shields.io/github/license/NyxionSoftware/SimulcastUtilitySuite"></a>
     <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/stargazers"><img src="https://img.shields.io/github/stars/NyxionSoftware/SimulcastUtilitySuite?style=flat"></a>
     <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/issues"><img src="https://img.shields.io/github/issues/NyxionSoftware/SimulcastUtilitySuite?style=flat"></a>
     <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/releases"><img src="https://img.shields.io/github/v/release/NyxionSoftware/SimulcastUtilitySuite?include_prereleases"></a>
