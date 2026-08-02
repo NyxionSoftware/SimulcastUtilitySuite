@@ -1,0 +1,8 @@
+.vs/
+**/bin/
+**/obj/
+Installer/Payload/
+Installer/Output/
+artifacts/
+*.user
+*.suo

@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Style x:Key="ReceiverListBoxStyle" TargetType="ListBox">
+
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+
+        <Setter Property="Background" Value="{DynamicResource TransparentBrush}"/>
+
+        <Setter Property="BorderThickness" Value="0"/>
+
+        <Setter Property="Padding" Value="0"/>
+
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBox">
+                    <Border x:Name="ListBoxBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="True">
+
+                        <ScrollViewer x:Name="ListScrollViewer" Background="{DynamicResource TransparentBrush}" BorderThickness="0" Padding="{TemplateBinding Padding}" Focusable="False" CanContentScroll="False" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+
+                            <ItemsPresenter/>
+                        </ScrollViewer>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+
+                            <!-- Never allow the default disabled white background -->
+                            <Setter TargetName="ListBoxBorder" Property="Background" Value="{DynamicResource TransparentBrush}"/>
+
+                            <Setter TargetName="ListScrollViewer" Property="Background" Value="{DynamicResource TransparentBrush}"/>
+
+                            <Setter TargetName="ListBoxBorder" Property="Opacity" Value="0.65"/>
+                        </Trigger>
+
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="ListBoxBorder" Property="Background" Value="{DynamicResource TransparentBrush}"/>
+                        </Trigger>
+                        
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

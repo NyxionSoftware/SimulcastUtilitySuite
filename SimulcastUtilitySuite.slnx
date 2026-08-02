@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="SimulcastUtility.Application/SimulcastUtility.Application.csproj" />
+  <Project Path="SimulcastUtility.Configuration/SimulcastUtility.Configuration.csproj" />
+  <Project Path="SimulcastUtility.Core/SimulcastUtility.Core.csproj" />
+  <Project Path="SimulcastUtility.Infrastructure/SimulcastUtility.Infrastructure.csproj" />
+  <Project Path="SimulcastUtility.Logging/SimulcastUtility.Logging.csproj" />
+  <Project Path="SimulcastUtility.Plugins/SimulcastUtility.Plugins.csproj" />
+  <Project Path="SimulcastUtility.Wpf/SimulcastUtility.Wpf.csproj" />
+  <Project Path="SimulcastUtility/SimulcastUtility.csproj" />
+</Solution>

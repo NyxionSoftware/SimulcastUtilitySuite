@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="Controls/TypographyStyles.xaml"/>
+    <ResourceDictionary Source="Controls/CardBorderStyle.xaml"/>
+    <ResourceDictionary Source="Controls/PluginDataGridStyle.xaml"/>
+    <ResourceDictionary Source="Controls/PrimaryButtonStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ChannelSetButtonStyle.xaml"/>
+    <ResourceDictionary Source="Controls/SecondaryButtonStyle.xaml"/>
+    <ResourceDictionary Source="Controls/PluginManagerStyles.xaml"/>
+    <ResourceDictionary Source="Controls/IconButtonStyle.xaml"/>
+    <ResourceDictionary Source="Controls/SuccessButtonStyle.xaml"/>
+    <ResourceDictionary Source="Controls/DangerButtonStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ModernTextBoxStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ModernComboBoxStyle.xaml"/>
+    <ResourceDictionary Source="Controls/TransparentButtonStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ScrollViewerStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ScrollBarStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ReceiverListBoxStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ReceiverListBoxItemStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ReceiverStatusIndicatorStyle.xaml"/>
+    <ResourceDictionary Source="Controls/NotificationStyles.xaml"/>
+    <ResourceDictionary Source="Controls/ModernCheckBoxStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ModernToggleSwitchStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ModernContextMenuStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ModernMenuItemStyle.xaml"/>
+    <ResourceDictionary Source="Controls/ModernMenuSeparatorStyle.xaml"/>
+  </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <SolidColorBrush x:Key="TransparentBrush" Color="{DynamicResource TransparentColor}"/>
+  <SolidColorBrush x:Key="ControlForegroundBrush" Color="{DynamicResource ControlForegroundColor}"/>
+  <SolidColorBrush x:Key="WindowBackgroundBrush" Color="{DynamicResource WindowBackgroundColor}"/>
+  <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="{DynamicResource SidebarBackgroundColor}"/>
+  <SolidColorBrush x:Key="CardBackgroundBrush" Color="{DynamicResource CardBackgroundColor}"/>
+  <SolidColorBrush x:Key="CardHoverBrush" Color="{DynamicResource CardHoverColor}"/>
+  <SolidColorBrush x:Key="InputBackgroundBrush" Color="{DynamicResource InputBackgroundColor}"/>
+  <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource BorderColor}"/>
+  <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColor}"/>
+  <SolidColorBrush x:Key="AccentHoverBrush" Color="{DynamicResource AccentHoverColor}"/>
+  <SolidColorBrush x:Key="AccentPressedBrush" Color="{DynamicResource AccentPressedColor}"/>
+  <SolidColorBrush x:Key="AccentMutedBrush" Color="{DynamicResource AccentMutedColor}"/>
+  <SolidColorBrush x:Key="SuccessBrush" Color="{DynamicResource SuccessColor}"/>
+  <SolidColorBrush x:Key="WarningBrush" Color="{DynamicResource WarningColor}"/>
+  <SolidColorBrush x:Key="InfoBrush" Color="{DynamicResource InfoColor}"/>
+  <SolidColorBrush x:Key="ErrorBrush" Color="{DynamicResource ErrorColor}"/>
+  <SolidColorBrush x:Key="PrimaryTextBrush" Color="{DynamicResource PrimaryTextColor}"/>
+  <SolidColorBrush x:Key="SecondaryTextBrush" Color="{DynamicResource SecondaryTextColor}"/>
+  <SolidColorBrush x:Key="MutedTextBrush" Color="{DynamicResource MutedTextColor}"/>
+  <SolidColorBrush x:Key="DataGridAlternatingRowBrush" Color="{DynamicResource DataGridAlternatingRowColor}"/>
+  <SolidColorBrush x:Key="DataGridHeaderBackgroundBrush" Color="{DynamicResource DataGridHeaderBackgroundColor}"/>
+  <SolidColorBrush x:Key="DataGridRowHoverBrush" Color="{DynamicResource DataGridRowHoverColor}"/>
+  <SolidColorBrush x:Key="SecondaryButtonBackgroundBrush" Color="{DynamicResource SecondaryButtonBackgroundColor}"/>
+  <SolidColorBrush x:Key="SecondaryButtonHoverBrush" Color="{DynamicResource SecondaryButtonHoverColor}"/>
+  <SolidColorBrush x:Key="SecondaryButtonPressedBrush" Color="{DynamicResource SecondaryButtonPressedColor}"/>
+  <SolidColorBrush x:Key="SuccessButtonBackgroundBrush" Color="{DynamicResource SuccessButtonBackgroundColor}"/>
+  <SolidColorBrush x:Key="SuccessButtonBorderBrush" Color="{DynamicResource SuccessButtonBorderColor}"/>
+  <SolidColorBrush x:Key="SuccessButtonHoverBrush" Color="{DynamicResource SuccessButtonHoverColor}"/>
+  <SolidColorBrush x:Key="SuccessButtonHoverBorderBrush" Color="{DynamicResource SuccessButtonHoverBorderColor}"/>
+  <SolidColorBrush x:Key="SuccessButtonPressedBrush" Color="{DynamicResource SuccessButtonPressedColor}"/>
+  <SolidColorBrush x:Key="SuccessButtonFocusBorderBrush" Color="{DynamicResource SuccessButtonFocusBorderColor}"/>
+  <SolidColorBrush x:Key="DangerButtonBackgroundBrush" Color="{DynamicResource DangerButtonBackgroundColor}"/>
+  <SolidColorBrush x:Key="DangerButtonBorderBrush" Color="{DynamicResource DangerButtonBorderColor}"/>
+  <SolidColorBrush x:Key="DangerButtonHoverBrush" Color="{DynamicResource DangerButtonHoverColor}"/>
+  <SolidColorBrush x:Key="DangerButtonHoverBorderBrush" Color="{DynamicResource DangerButtonHoverBorderColor}"/>
+  <SolidColorBrush x:Key="DangerButtonPressedBrush" Color="{DynamicResource DangerButtonPressedColor}"/>
+  <SolidColorBrush x:Key="DangerButtonFocusBorderBrush" Color="{DynamicResource DangerButtonFocusBorderColor}"/>
+  <SolidColorBrush x:Key="TextBoxHoverBorderBrush" Color="{DynamicResource TextBoxHoverBorderColor}"/>
+</ResourceDictionary>
