@@ -9,16 +9,12 @@
 </p>
 
 <p align="center">
-  <a href="https://dotnet.microsoft.com/"><img alt=".NET 10" src="https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" /></a>
-  <a href="https://learn.microsoft.com/dotnet/desktop/wpf/"><img alt="WPF" src="https://img.shields.io/badge/UI-WPF-7C5CFC?style=for-the-badge&logo=windows&logoColor=white" /></a>
-  <img alt="Windows x64" src="https://img.shields.io/badge/platform-Windows%20x64-0078D4?style=for-the-badge&logo=windows11&logoColor=white" />
-</p>
-
-<p align="center">
-  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/github/license/NyxionSoftware/SimulcastUtilitySuite?style=for-the-badge&color=7C5CFC" /></a>
-  <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/NyxionSoftware/SimulcastUtilitySuite?style=for-the-badge&color=7C5CFC" /></a>
-  <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/NyxionSoftware/SimulcastUtilitySuite?style=for-the-badge&color=0078D4" /></a>
-  <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/releases"><img alt="GitHub release" src="https://img.shields.io/github/v/release/NyxionSoftware/SimulcastUtilitySuite?include_prereleases&style=for-the-badge&color=7C5CFC" /></a>
+  <a href="https://dotnet.microsoft.com/"><img alt=".NET 10" src="https://img.shields.io/badge/.NET-10-512BD4?style=flat&logo=dotnet&logoColor=white" /></a>
+  <a href="https://learn.microsoft.com/dotnet/desktop/wpf/"><img alt="WPF for Windows" src="https://img.shields.io/badge/WPF-Windows-0078D6?style=flat" /></a>
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/github/license/NyxionSoftware/SimulcastUtilitySuite" /></a>
+  <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/NyxionSoftware/SimulcastUtilitySuite?style=flat" /></a>
+  <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/NyxionSoftware/SimulcastUtilitySuite?style=flat" /></a>
+  <a href="https://github.com/NyxionSoftware/SimulcastUtilitySuite/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/NyxionSoftware/SimulcastUtilitySuite?include_prereleases" /></a>
 </p>
 
 ---
@@ -321,5 +317,5 @@ Simulcast Utility Suite is available under the [MIT License](LICENSE).
 ---
 
 <p align="center">
-  Made with 💜 by <strong>Nyxion Software</strong>
+  Made with 💜 by <a href="https://nyxionsoftware.com/"><strong>Nyxion Software</strong></a>
 </p>
