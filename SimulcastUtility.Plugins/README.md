@@ -21,4 +21,4 @@ Plugins can expose text, numeric, toggle, checkbox, multi-checkbox, dropdown, an
 
 Plugin assemblies should reference `SimulcastUtility.Plugins` for compilation but must not copy the shared Simulcast Utility contract assemblies into their deployment directory. The host supplies those assemblies at runtime.
 
-See the [Plugin Development Wiki](../docs/wiki/Plugin-Development.md) for examples, packaging guidance, settings, storage, UI integration, and themes.
+See the [Plugin Development Wiki](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Plugin-Development) for examples, packaging guidance, settings, storage, UI integration, and themes.

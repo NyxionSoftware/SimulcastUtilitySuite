@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/simulcast-utility-hero.png" alt="Simulcast Utility receiver control artwork" width="100%" />
+  <img src=".github/assets/simulcast-utility-hero.png" alt="Simulcast Utility receiver control artwork" width="100%" />
 </p>
 
 <h1 align="center">Simulcast Utility Suite</h1>
@@ -60,7 +60,7 @@ The self-contained Windows x64 installer does not require users to install the .
 
 Monitor receiver status, activity, channel information, EPG progress, and receiver details while keeping channel controls and actions close at hand.
 
-<!-- Add: ![Main dashboard](docs/assets/screenshots/receiver-dashboard.png) -->
+<!-- Add: ![Main dashboard](.github/assets/screenshots/receiver-dashboard.png) -->
 
 > 📸 A current dashboard screenshot will be added before release.
 
@@ -70,7 +70,7 @@ Monitor receiver status, activity, channel information, EPG progress, and receiv
 
 Discover, validate, add, edit, delete, and fluidly reorder receivers without leaving the main application shell.
 
-<!-- Add: ![Receiver management](docs/assets/screenshots/receiver-manager.png) -->
+<!-- Add: ![Receiver management](.github/assets/screenshots/receiver-manager.png) -->
 
 > 📸 A current receiver-management screenshot will be added before release.
 
@@ -80,7 +80,7 @@ Discover, validate, add, edit, delete, and fluidly reorder receivers without lea
 
 Import, enable, disable, refresh, configure, and actively unload plugins at runtime. Plugin-defined settings are presented using controls that match the application theme.
 
-<!-- Add: ![Plugin management](docs/assets/screenshots/plugin-manager.png) -->
+<!-- Add: ![Plugin management](.github/assets/screenshots/plugin-manager.png) -->
 
 > 📸 A current plugin-management screenshot will be added before release.
 
@@ -90,11 +90,11 @@ Import, enable, disable, refresh, configure, and actively unload plugins at runt
 
 Open one independent, non-modal virtual remote per receiver and continue working in the main window while commands are sent.
 
-<!-- Add: ![Virtual remote](docs/assets/screenshots/virtual-remote.png) -->
+<!-- Add: ![Virtual remote](.github/assets/screenshots/virtual-remote.png) -->
 
 > 📸 A current virtual-remote screenshot will be added before release.
 
-See the [screenshot guide](docs/assets/screenshots/README.md) for the prepared filenames and capture guidance.
+Release-ready screenshots will be stored with the repository artwork under `.github/assets/screenshots`.
 
 ---
 
@@ -177,7 +177,7 @@ Plugins/
 
 The application recursively discovers compatible plugins. Shared Simulcast Utility contract assemblies should not be copied into an individual plugin directory.
 
-For complete guidance, see the [Plugin Development Wiki](docs/wiki/Plugin-Development.md).
+For complete guidance, see the [Plugin Development Wiki](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Plugin-Development).
 
 ---
 
@@ -287,17 +287,17 @@ Logging and plugin directories can be changed through application configuration.
 
 # 📚 Documentation
 
-The local [GitHub Wiki source](docs/wiki/Home.md) covers application usage, receiver management, configuration, plugin installation, plugin development, settings, data storage, UI integration, and themes.
+The [GitHub Wiki](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki) covers application usage, receiver management, configuration, plugin installation, plugin development, settings, data storage, UI integration, and themes.
 
-- [Getting Started](docs/wiki/Getting-Started.md)
-- [Managing Receivers](docs/wiki/Managing-Receivers.md)
-- [Managing Plugins](docs/wiki/Managing-Plugins.md)
-- [Creating Your First Plugin](docs/wiki/Creating-Your-First-Plugin.md)
-- [Building and Distributing Plugins](docs/wiki/Building-and-Distributing-Plugins.md)
-- [Plugin Settings and Data](docs/wiki/Plugin-Settings-and-Data.md)
-- [Plugin UI, Notifications, and Themes](docs/wiki/Plugin-UI-Notifications-and-Themes.md)
-- [Virtual Remote](docs/wiki/Virtual-Remote.md)
-- [Application Data and Troubleshooting](docs/wiki/Application-Data-and-Troubleshooting.md)
+- [Getting Started](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Getting-Started)
+- [Managing Receivers](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Managing-Receivers)
+- [Managing Plugins](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Managing-Plugins)
+- [Creating Your First Plugin](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Creating-Your-First-Plugin)
+- [Building and Distributing Plugins](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Building-and-Distributing-Plugins)
+- [Plugin Settings and Data](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Plugin-Settings-and-Data)
+- [Plugin UI, Notifications, and Themes](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Plugin-UI-Notifications-and-Themes)
+- [Virtual Remote](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Virtual-Remote)
+- [Application Data and Troubleshooting](https://github.com/NyxionSoftware/SimulcastUtilitySuite/wiki/Application-Data-and-Troubleshooting)
 
 ---
 
