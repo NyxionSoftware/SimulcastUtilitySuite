@@ -1,8 +1,90 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Aa]rtifacts/
+[Pp]ublish/
+out/
+Debug/
+Release/
+x64/
+x86/
+arm64/
+
+# Visual Studio, Visual Studio Code, and JetBrains user state
 .vs/
-**/bin/
-**/obj/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.DotSettings.user
+
+# .NET and NuGet generated files
+project.lock.json
+project.fragment.lock.json
+artifacts.json
+*.nuget.props
+*.nuget.targets
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Test, benchmark, and coverage output
+TestResults/
+BenchmarkDotNet.Artifacts/
+coverage/
+coverage.*
+*.coverage
+*.coveragexml
+*.trx
+
+# Installer build products
 Installer/Payload/
 Installer/Output/
-artifacts/
-*.user
-*.suo
+
+# Local application state
+receivers.json
+Logs/
+PluginData/
+CrashDumps/
+*.local.json
+
+# Logs, caches, and temporary files
+*.log
+*.cache
+*.tmp
+*.temp
+*.bak
+*.orig
+*.pid
+*.dmp
+*.stackdump
+~$*
+
+# Local archives and deployment packages
+*.zip
+*.7z
+*.rar
+*.msi
+*.msix
+*.appx
+
+# Signing material and secrets
+*.pfx
+*.p12
+*.cer
+*.key
+*.snk
+*.secrets.json
+.env
+.env.*
+!.env.example
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
