@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/assets/simulcast-utility-hero.png" alt="Simulcast Utility receiver control artwork" width="100%" />
+  <img src=".github/assets/simulcast-utility-hero.png" href="https://nyxionsoftware.com/" alt="Simulcast Utility receiver control artwork" width="100%" />
 </p>
 
 <h1 align="center">Simulcast Utility Suite</h1>
