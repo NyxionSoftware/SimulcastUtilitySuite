@@ -146,6 +146,9 @@ The built-in settings experience currently supports:
 - Dropdown (choice)
 - SideBySideList
 
+<img width="620" height="720" alt="Examples of Configuration Settings" src="https://github.com/user-attachments/assets/9a19339c-8154-4b82-b08e-b14c7825060b" />
+
+
 ## Plugin folder layout
 
 Plugins may be placed directly inside the configured plugin directory or in their own subdirectory when dependencies are required.
