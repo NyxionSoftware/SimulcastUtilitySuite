@@ -136,6 +136,8 @@ Plugins implement `ISimulcastPlugin` from `SimulcastUtility.Plugins` and receive
 
 ## Plugin settings controls
 
+Plugin settings can be implemented by using `IPluginSettingsProvider` from `SimulcastUtility.Plugins` which allows the plugin to easily get the setting values and define what settings are available for the plugin using attributes.
+
 The built-in settings experience currently supports:
 
 - Text
@@ -145,6 +147,8 @@ The built-in settings experience currently supports:
 - MultiCheckbox
 - Dropdown (choice)
 - SideBySideList
+
+These are provided via the `PluginSetting` attribute using `PluginSettingControlType` enum.
 
 <img width="620" height="720" alt="Examples of Configuration Settings" src="https://github.com/user-attachments/assets/9a19339c-8154-4b82-b08e-b14c7825060b" />
 
@@ -161,7 +165,8 @@ Plugins/
 │   └── PluginDependency.dll
 └── ExamplePlugin2/
     ├── Plugin.dll
-    └── MediaDependency.dll
+    ├── PluginDependency1.dll
+    └── PluginDependency2.dll
 ```
 
 The application recursively discovers compatible plugins. Shared Simulcast Utility contract assemblies should not be copied into an individual plugin directory.
@@ -175,16 +180,15 @@ For complete guidance, see the [Plugin Development Wiki](https://github.com/Nyxi
 ## End-user requirements
 
 - Windows 10 version 1809 or newer
-- Windows 11
 - 64-bit Windows installation
 
 The official installer publishes a self-contained application, so no separate .NET installation is required.
 
-## Build requirements
+## Development requirements
 
 - .NET 10 SDK
 - Visual Studio 2026 or another IDE with WPF support
-- Inno Setup 6 when building the installer
+- Inno Setup 6 when building the installer (Possibility of upgrading to Inno Setup 7 in the future)
 
 Clone and build the project:
 
@@ -217,7 +221,7 @@ The generated installer is written to `Installer\Output\SimulcastUtilitySetup.ex
 - A per-user installation under `%LOCALAPPDATA%\Programs` without elevation
 - A workstation installation under `%ProgramFiles%\NyxionSoftware` with administrator approval
 
-The installer can optionally import an existing `receivers.json`. The themed uninstaller independently offers removal of receiver configuration, installed plugins, and plugin data.
+The installer can optionally import an existing `receivers.json` file. The themed uninstaller independently offers removal of receiver configuration, installed plugins, and plugin data.
 
 ---
 
@@ -310,4 +314,5 @@ Simulcast Utility Suite is available under the [MIT License](LICENSE).
 
 <p align="center">
   Made with 💜 by <a href="https://nyxionsoftware.com/"><strong>Nyxion Software</strong></a>
+  Be sure to check out my website.
 </p>
