@@ -156,11 +156,11 @@ Plugins may be placed directly inside the configured plugin directory or in thei
 ```text
 Plugins/
 ├── ExamplePlugin.dll
-├── RTNSchedulePlugin/
-│   ├── RTNSchedulePlugin.dll
+├── RTNSPlugin/
+│   ├── RTNPlugin.dll
 │   └── PluginDependency.dll
-└── FeedPlugin/
-    ├── FeedPlugin.dll
+└── ExamplePlugin2/
+    ├── Plugin.dll
     └── MediaDependency.dll
 ```
 
