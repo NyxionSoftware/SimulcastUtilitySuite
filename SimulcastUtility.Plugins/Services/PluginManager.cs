@@ -365,6 +365,12 @@ namespace SimulcastUtility.Plugins.Services
             {
                 loadContext = new PluginLoadContext(assemblyPath);
                 Assembly assembly = loadContext.LoadPluginAssembly();
+                string assemblyName = assembly.GetName().Name ?? throw new InvalidOperationException($"Plugin assembly '{assemblyPath}' does not have a valid assembly name.");
+                PluginRuntime? conflictingRuntime = _runtimes.FirstOrDefault(runtime => !ReferenceEquals(runtime.LoadContext, loadContext) && string.Equals(runtime.AssemblyName, assemblyName, StringComparison.OrdinalIgnoreCase));
+
+                if (conflictingRuntime is not null)
+                    throw new InvalidOperationException($"Plugin assembly name '{assemblyName}' is already used by '{conflictingRuntime.Model.Info.Name}'. Plugin assembly names must be unique so WPF resources can be resolved safely.");
+
                 Type[] pluginTypes = GetLoadableTypes(assembly).Where(type => !type.IsAbstract && !type.IsInterface && typeof(ISimulcastPlugin).IsAssignableFrom(type)).ToArray();
 
                 foreach (Type pluginType in pluginTypes)
@@ -639,6 +645,8 @@ namespace SimulcastUtility.Plugins.Services
             public LoadedPlugin Model { get; }
 
             public PluginLoadContext LoadContext { get; }
+
+            public string AssemblyName => Plugin.GetType().Assembly.GetName().Name ?? string.Empty;
 
             public bool IsInitialized { get; set; }
 

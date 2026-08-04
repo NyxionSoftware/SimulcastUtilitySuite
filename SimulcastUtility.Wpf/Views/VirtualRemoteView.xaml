@@ -50,9 +50,9 @@
                 <StackPanel>
                     <Grid Margin="0,0,0,22">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="52" />
+                            <ColumnDefinition Width="70" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="52" />
+                            <ColumnDefinition Width="70" />
                         </Grid.ColumnDefinitions>
 
                         <Button Height="42"
@@ -60,8 +60,8 @@
                                 CommandParameter="EPG"
                                 Style="{DynamicResource SecondaryButtonStyle}"
                                 ToolTip="Program guide">
-                            <iconPacks:PackIconMaterial Width="18"
-                                                      Height="18"
+                            <iconPacks:PackIconMaterial Width="24"
+                                                      Height="24"
                                                       Kind="TelevisionGuide" />
                         </Button>
 
@@ -80,8 +80,8 @@
                                 CommandParameter="SETTINGS"
                                 Style="{DynamicResource SecondaryButtonStyle}"
                                 ToolTip="Settings">
-                            <iconPacks:PackIconMaterial Width="18"
-                                                      Height="18"
+                            <iconPacks:PackIconMaterial Width="24"
+                                                      Height="24"
                                                       Kind="Cog" />
                         </Button>
                     </Grid>

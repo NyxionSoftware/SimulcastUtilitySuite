@@ -23,19 +23,27 @@ namespace SimulcastUtility.Wpf.Services
                 RemoveResourceDictionary(pluginIdentifier);
                 ResourceDictionary resourceDictionary = new() { Source = resourceDictionaryUri };
                 ResourceDictionary applicationResources = System.Windows.Application.Current.Resources;
-                applicationResources.MergedDictionaries.Add(resourceDictionary);
                 Dictionary<object, PreviousResource> previousResources = new();
+                List<KeyValuePair<object, object>> resourceOverrides = new();
 
                 foreach (KeyValuePair<object, object> resource in EnumerateResources(resourceDictionary))
                 {
                     if (resource.Value is not Color color)
                         continue;
 
-                    ApplyResourceOverride(applicationResources, previousResources, resource.Key, color);
+                    resourceOverrides.Add(new KeyValuePair<object, object>(resource.Key, color));
 
                     if (resource.Key is string colorKey && colorKey.EndsWith("Color", StringComparison.Ordinal))
-                        ApplyResourceOverride(applicationResources, previousResources, $"{colorKey[..^5]}Brush", new SolidColorBrush(color));
+                        resourceOverrides.Add(new KeyValuePair<object, object>($"{colorKey[..^5]}Brush", new SolidColorBrush(color)));
                 }
+
+                foreach (KeyValuePair<object, object> resourceOverride in resourceOverrides)
+                    CapturePreviousResource(previousResources, resourceOverride.Key);
+
+                foreach (KeyValuePair<object, object> resourceOverride in resourceOverrides)
+                    applicationResources[resourceOverride.Key] = resourceOverride.Value;
+
+                applicationResources.MergedDictionaries.Add(resourceDictionary);
 
                 _pluginResources[pluginIdentifier] = new PluginThemeResources(resourceDictionary, previousResources);
             });
@@ -69,16 +77,15 @@ namespace SimulcastUtility.Wpf.Services
                 return;
 
             ResourceDictionary applicationResources = System.Windows.Application.Current.Resources;
+            applicationResources.MergedDictionaries.Remove(pluginResources.Dictionary);
 
             foreach (KeyValuePair<object, PreviousResource> resource in pluginResources.PreviousResources)
             {
-                if (resource.Value.HadLocalValue)
+                if (resource.Value.HadValue)
                     applicationResources[resource.Key] = resource.Value.Value;
                 else
                     applicationResources.Remove(resource.Key);
             }
-
-            applicationResources.MergedDictionaries.Remove(pluginResources.Dictionary);
         }
 
         private static IEnumerable<KeyValuePair<object, object>> EnumerateResources(ResourceDictionary resourceDictionary)
@@ -93,18 +100,20 @@ namespace SimulcastUtility.Wpf.Services
                 yield return new KeyValuePair<object, object>(key, resourceDictionary[key]);
         }
 
-        private static void ApplyResourceOverride(ResourceDictionary applicationResources, IDictionary<object, PreviousResource> previousResources, object key, object value)
+        private static void CapturePreviousResource(IDictionary<object, PreviousResource> previousResources, object key)
         {
-            if (!previousResources.ContainsKey(key))
-            {
-                bool hadLocalValue = applicationResources.Keys.Cast<object>().Contains(key);
-                previousResources[key] = new PreviousResource(hadLocalValue, hadLocalValue ? applicationResources[key] : null);
-            }
+            if (previousResources.ContainsKey(key))
+                return;
 
-            applicationResources[key] = value;
+            object? previousValue = System.Windows.Application.Current.TryFindResource(key);
+
+            if (previousValue is Freezable freezable)
+                previousValue = freezable.CloneCurrentValue();
+
+            previousResources[key] = new PreviousResource(previousValue is not null, previousValue);
         }
 
-        private sealed record PreviousResource(bool HadLocalValue, object? Value);
+        private sealed record PreviousResource(bool HadValue, object? Value);
 
         private sealed record PluginThemeResources(ResourceDictionary Dictionary, IReadOnlyDictionary<object, PreviousResource> PreviousResources);
     }
