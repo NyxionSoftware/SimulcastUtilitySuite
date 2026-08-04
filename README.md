@@ -267,10 +267,9 @@ Logging and plugin directories can be changed through application configuration.
 - [x] Plugin settings and persistent data-store APIs
 - [x] Application-wide plugin themes
 - [x] Styled per-user and workstation installer
-- [ ] Automatic receiver discovery
+- [x] Automatic receiver discovery
 - [ ] Receiver group management
 - [ ] Multi-language support
-- [ ] Server-mode statistics and monitoring
 
 ---
 

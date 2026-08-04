@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
   <Project Path="SimulcastUtility.Application/SimulcastUtility.Application.csproj" />
   <Project Path="SimulcastUtility.Configuration/SimulcastUtility.Configuration.csproj" />
   <Project Path="SimulcastUtility.Core/SimulcastUtility.Core.csproj" />
