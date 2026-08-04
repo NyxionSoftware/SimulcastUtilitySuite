@@ -91,7 +91,7 @@ namespace SimulcastUtility
             }
         }
 
-        private void OpenReceiverManager(Guid? receiverToEdit = null, bool beginAdd = false)
+        private void OpenReceiverManager(Guid? receiverToEdit = null, bool beginAdd = false, bool slideFromRight = true)
         {
             ReceiverManagerViewModel viewModel = new(_receiverManager, _receiverCommandManager, _mainViewModel, receiverToEdit, beginAdd);
             ReceiverManagerView view = new(viewModel);
@@ -102,6 +102,24 @@ namespace SimulcastUtility
                 NavigateTo(_mainView, slideFromRight: false);
             };
 
+            viewModel.DiscoverReceiversRequested += (_, _) =>
+            {
+                viewModel.Dispose();
+                OpenReceiverDiscovery();
+            };
+
+            NavigateTo(view, slideFromRight);
+        }
+
+        private void OpenReceiverDiscovery()
+        {
+            ReceiverDiscoveryViewModel viewModel = new(_receiverManager, _receiverCommandManager, _mainViewModel);
+            ReceiverDiscoveryView view = new(viewModel);
+            viewModel.BackRequested += (_, _) =>
+            {
+                viewModel.Dispose();
+                OpenReceiverManager(slideFromRight: false);
+            };
             NavigateTo(view, slideFromRight: true);
         }
 

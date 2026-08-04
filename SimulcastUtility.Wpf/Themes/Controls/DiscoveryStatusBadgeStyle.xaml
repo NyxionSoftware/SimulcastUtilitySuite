@@ -1,0 +1,31 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="DiscoveryInfoBackgroundBrush" Color="{DynamicResource InfoColor}" Opacity="0.14" />
+    <SolidColorBrush x:Key="DiscoverySuccessBackgroundBrush" Color="{DynamicResource SuccessColor}" Opacity="0.14" />
+    <SolidColorBrush x:Key="DiscoveryErrorBackgroundBrush" Color="{DynamicResource ErrorColor}" Opacity="0.14" />
+
+    <Style x:Key="DiscoveryStatusBadgeStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource DiscoveryInfoBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource InfoBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsValidName}" Value="True">
+                <Setter Property="Background" Value="{DynamicResource DiscoverySuccessBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsSaved}" Value="True">
+                <Setter Property="Background" Value="{DynamicResource DiscoverySuccessBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsAlreadyConfigured}" Value="True">
+                <Setter Property="Background" Value="{DynamicResource DiscoveryErrorBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsNameInUse}" Value="True">
+                <Setter Property="Background" Value="{DynamicResource DiscoveryErrorBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

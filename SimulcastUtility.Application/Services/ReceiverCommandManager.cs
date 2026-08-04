@@ -90,6 +90,11 @@ namespace SimulcastUtility.Application.Services
                 throw new InvalidOperationException($"Receiver ID '{receiverId}' is not valid for IP address '{receiverIpAddress}'.");
         }
 
+        public Task<CommandResult<HELLO_DISCOVERY_RESPONSE>> DiscoverReceiverAtIpAsync(string receiverIpAddress, TimeSpan timeout, CancellationToken cancellationToken = default)
+        {
+            return SendCommandAsync<HELLO_DISCOVERY_RESPONSE>(receiverIpAddress, "0", HELLO_DISCOVERY.Default, timeout, cancellationToken, ReceiverCommandExecutionOptions.BypassThrottlingWithoutActivityUpdates);
+        }
+
         public void SetReceiverActivityStatus(Guid receiverId, ReceiverActivityStatus activityStatus)
         {
             Receiver receiver = _receiverManager.GetReceiver(receiverId) ?? throw new ReceiverNotFoundException(receiverId);

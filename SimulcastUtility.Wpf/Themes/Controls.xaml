@@ -19,6 +19,7 @@
     <ResourceDictionary Source="Controls/ReceiverListBoxStyle.xaml"/>
     <ResourceDictionary Source="Controls/ReceiverListBoxItemStyle.xaml"/>
     <ResourceDictionary Source="Controls/ReceiverStatusIndicatorStyle.xaml"/>
+    <ResourceDictionary Source="Controls/DiscoveryStatusBadgeStyle.xaml"/>
     <ResourceDictionary Source="Controls/NotificationStyles.xaml"/>
     <ResourceDictionary Source="Controls/ModernCheckBoxStyle.xaml"/>
     <ResourceDictionary Source="Controls/ModernToggleSwitchStyle.xaml"/>

@@ -77,6 +77,7 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
                 OnPropertyChanged(nameof(BusyVisibility));
                 SaveReceiverCommand.NotifyCanExecuteChanged();
                 DeleteReceiverCommand.NotifyCanExecuteChanged();
+                DiscoverReceiversCommand.NotifyCanExecuteChanged();
             }
         }
 
@@ -122,6 +123,8 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
 
         public IRelayCommand AddReceiverCommand { get; }
 
+        public IRelayCommand DiscoverReceiversCommand { get; }
+
         public IAsyncRelayCommand DeleteReceiverCommand { get; }
 
         public IAsyncRelayCommand SaveReceiverCommand { get; }
@@ -134,6 +137,8 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
 
         public event EventHandler? CloseRequested;
 
+        public event EventHandler? DiscoverReceiversRequested;
+
         public ReceiverManagerViewModel(IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, MainViewModel notificationHost, Guid? receiverToEdit = null, bool beginAdd = false)
         {
             _receiverManager = receiverManager;
@@ -141,6 +146,7 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             _notificationHost = notificationHost;
 
             AddReceiverCommand = new RelayCommand(BeginAdd);
+            DiscoverReceiversCommand = new RelayCommand(() => DiscoverReceiversRequested?.Invoke(this, EventArgs.Empty), () => !IsBusy);
             DeleteReceiverCommand = new AsyncRelayCommand(DeleteSelectedReceiverAsync, () => SelectedReceiver is { IsNew: false } && !IsBusy);
             SaveReceiverCommand = new AsyncRelayCommand(SaveReceiverAsync, CanSaveReceiver);
             BackCommand = new AsyncRelayCommand(BackAsync);

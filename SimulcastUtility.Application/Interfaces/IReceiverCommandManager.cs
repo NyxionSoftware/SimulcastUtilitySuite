@@ -1,5 +1,6 @@
 ﻿using SimulcastUtility.Application.Events;
 using SimulcastUtility.Application.Protocol;
+using SimulcastUtility.Application.Protocol.Responses;
 using SimulcastUtility.Core.Enums;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,8 @@ namespace SimulcastUtility.Application.Interfaces
         Task RefreshReceiverEpgAsync(Guid receiverId, CancellationToken cancellationToken = default);
 
         Task VerifyReceiverAsync(string receiverIpAddress, string receiverId, CancellationToken cancellationToken = default);
+
+        Task<CommandResult<HELLO_DISCOVERY_RESPONSE>> DiscoverReceiverAtIpAsync(string receiverIpAddress, TimeSpan timeout, CancellationToken cancellationToken = default);
 
         void SetReceiverActivityStatus(Guid receiverId, ReceiverActivityStatus activityStatus);
 
