@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/assets/simulcast-utility-hero.png" alt="Simulcast Utility receiver control artwork" width="100%" />
+  <img width="1774" height="887" alt="Simulcast Utility receiver control artwork" src="https://github.com/user-attachments/assets/ee1a0e1c-6808-43b0-8f2f-7ebc03940512" />
 </p>
 
 <h1 align="center">Simulcast Utility Suite</h1>
@@ -56,9 +56,7 @@ The self-contained Windows x64 installer does not require users to install the .
 
 Monitor receiver status, activity, channel information, EPG progress, and receiver details while keeping channel controls and actions close at hand.
 
-<!-- Add: ![Main dashboard](.github/assets/screenshots/receiver-dashboard.png) -->
-
-> 📸 A current dashboard screenshot will be added before release.
+<img width="1186" height="808" alt="Main Dashboard Page" src="https://github.com/user-attachments/assets/fefd9e8d-64f7-47be-a39e-5559dc4e4e4e" />
 
 ---
 
@@ -66,9 +64,7 @@ Monitor receiver status, activity, channel information, EPG progress, and receiv
 
 Discover, validate, add, edit, delete, and fluidly reorder receivers without leaving the main application shell.
 
-<!-- Add: ![Receiver management](.github/assets/screenshots/receiver-manager.png) -->
-
-> 📸 A current receiver-management screenshot will be added before release.
+<img width="1186" height="808" alt="Receiver Management Page" src="https://github.com/user-attachments/assets/db389a7f-fac2-4fea-8fcf-f95ba519f689" />
 
 ---
 
@@ -76,9 +72,7 @@ Discover, validate, add, edit, delete, and fluidly reorder receivers without lea
 
 Import, enable, disable, refresh, configure, and actively unload plugins at runtime. Plugin-defined settings are presented using controls that match the application theme.
 
-<!-- Add: ![Plugin management](.github/assets/screenshots/plugin-manager.png) -->
-
-> 📸 A current plugin-management screenshot will be added before release.
+<img width="1186" height="808" alt="Plugin Management Page" src="https://github.com/user-attachments/assets/1ccc5f1e-aaae-4e8c-aa84-6b6a7494443d" />
 
 ---
 
@@ -86,11 +80,7 @@ Import, enable, disable, refresh, configure, and actively unload plugins at runt
 
 Open one independent, non-modal virtual remote per receiver and continue working in the main window while commands are sent.
 
-<!-- Add: ![Virtual remote](.github/assets/screenshots/virtual-remote.png) -->
-
-> 📸 A current virtual-remote screenshot will be added before release.
-
-Release-ready screenshots will be stored with the repository artwork under `.github/assets/screenshots`.
+<img width="386" height="723" alt="Virtual Remote Window" src="https://github.com/user-attachments/assets/82f44fa5-e31c-48ee-86a0-c9b812089d18" />
 
 ---
 
