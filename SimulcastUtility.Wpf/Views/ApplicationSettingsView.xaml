@@ -157,7 +157,7 @@
                 </Button>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock FontSize="11" Foreground="{DynamicResource ErrorBrush}" Text="{Binding StatusMessage}" TextWrapping="Wrap" Visibility="{Binding ErrorStatusVisibility}" />
-                    <TextBlock FontSize="11" Foreground="{DynamicResource SuccessBrush}" Text="{Binding StatusMessage}" TextWrapping="Wrap" Visibility="{Binding SuccessStatusVisibility}" />
+                    <TextBlock Margin="120,0,250,0" FontSize="11" Foreground="{DynamicResource SuccessBrush}" Text="{Binding StatusMessage}" TextWrapping="Wrap" Visibility="{Binding SuccessStatusVisibility}" />
                 </StackPanel>
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button Margin="0,0,10,0" Command="{Binding CloseCommand}" Content="Back" Style="{DynamicResource SecondaryButtonStyle}" />
@@ -230,13 +230,13 @@
                     <TextBlock Margin="0,18,0,8" FontSize="12" Foreground="{DynamicResource PrimaryTextBrush}" Text="Developed by Jamie Head through Nyxion Software." TextWrapping="Wrap" />
                     <TextBlock Margin="0,0,0,20" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Text="Simulcast Utility Suite is a modern Windows application for discovering, managing, monitoring, and controlling compatible receivers." TextWrapping="Wrap" />
                     <StackPanel Orientation="Horizontal">
-                        <Button Margin="0,0,10,0" Command="{Binding OpenRepositoryCommand}" Style="{DynamicResource SecondaryButtonStyle}">
+                        <Button Height="38" Margin="0,0,10,0" Command="{Binding OpenRepositoryCommand}" Style="{DynamicResource SecondaryButtonStyle}">
                             <StackPanel Orientation="Horizontal">
                                 <iconPacks:PackIconMaterial Width="15" Height="15" Margin="0,0,8,0" Kind="Github" />
-                                <TextBlock Text="GitHub Repository" />
+                                <TextBlock Text="GitHub Source" />
                             </StackPanel>
                         </Button>
-                        <Button Command="{Binding OpenWebsiteCommand}" Style="{DynamicResource SecondaryButtonStyle}">
+                        <Button Height="38" Command="{Binding OpenWebsiteCommand}" Style="{DynamicResource SecondaryButtonStyle}">
                             <StackPanel Orientation="Horizontal">
                                 <iconPacks:PackIconMaterial Width="15" Height="15" Margin="0,0,8,0" Kind="Web" />
                                 <TextBlock Text="Nyxion Software" />

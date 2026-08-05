@@ -29,6 +29,7 @@ namespace SimulcastUtility.Application.Services
         private readonly object _receiverActivityLock = new();
         private const int ReceiverPort = 25671;
         private static readonly TimeSpan MinimumCommandInterval = TimeSpan.FromSeconds(3);
+        private static readonly TimeSpan ReceiverRefreshCooldown = TimeSpan.FromSeconds(5);
         private static readonly JsonSerializerOptions SerializerOptions = new()
         {
             PropertyNameCaseInsensitive = true
@@ -45,17 +46,18 @@ namespace SimulcastUtility.Application.Services
 
         public async Task RefreshReceiverAsync(Guid receiverId, CancellationToken cancellationToken = default)
         {
+            Receiver receiver = _receiverManager.GetReceiver(receiverId) ?? throw new ReceiverNotFoundException(receiverId);
+            receiver.MarkRefreshRequested(DateTimeOffset.UtcNow);
             var result = await DiscoverReceiverAsync(receiverId, cancellationToken);
-            _ = InvokeReceiverEPG(receiverId, result.EpgLoadTask);
+            await InvokeReceiverEPG(receiverId, result.EpgLoadTask);
         }
 
         public async Task RefreshAllReceiversAsync(CancellationToken cancellationToken = default)
         {
-            var receivers = _receiverManager.Receivers.ToList();
-            foreach (Receiver receiver in receivers)
-            {
-                await RefreshReceiverAsync(receiver.Id, cancellationToken);
-            }
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            var receivers = _receiverManager.Receivers.Where(receiver => receiver.ActivityStatus == ReceiverActivityStatus.Idle && (receiver.LastRefreshRequestedUtc is not { } lastRefreshRequestedUtc || now >= lastRefreshRequestedUtc.Add(ReceiverRefreshCooldown))).ToList();
+            Task[] refreshTasks = receivers.Select(receiver => RefreshReceiverAsync(receiver.Id, cancellationToken)).ToArray();
+            await Task.WhenAll(refreshTasks);
         }
 
         public async Task RefreshReceiverEpgAsync(Guid receiverId, CancellationToken cancellationToken = default)

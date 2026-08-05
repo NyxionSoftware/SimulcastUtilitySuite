@@ -4,6 +4,7 @@ using SimulcastUtility.Application.Events;
 using SimulcastUtility.Application.Interfaces;
 using SimulcastUtility.Application.Protocol.Commands;
 using SimulcastUtility.Application.Protocol.Payloads;
+using SimulcastUtility.Core.Enums;
 using SimulcastUtility.Core.Models;
 using SimulcastUtility.Wpf.ViewModels.Models;
 using System.Collections.Concurrent;
@@ -24,6 +25,7 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
         private readonly ConcurrentDictionary<string, byte> _displayedReceiverErrors = new();
         private readonly ICollectionView _filteredReceivers;
         private readonly object _refreshCooldownLock = new();
+        private readonly HashSet<Guid> _refreshingReceiverIds = new();
         private readonly System.Windows.Threading.DispatcherTimer _channelProgressTimer = new() { Interval = TimeSpan.FromSeconds(1) };
         private static readonly TimeSpan RefreshReceiverCooldown = TimeSpan.FromSeconds(5);
         private static readonly TimeSpan RefreshAllReceiversCooldown = TimeSpan.FromSeconds(10);
@@ -35,8 +37,6 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
         private string? _channelStatusMessage;
         private int _loadedPluginCount;
         private DateTimeOffset _nextRefreshAllAtUtc = DateTimeOffset.MinValue;
-        private DateTimeOffset _refreshButtonsDisabledUntilUtc = DateTimeOffset.MinValue;
-        private bool _isRefreshingReceiver;
         private bool _isRefreshingAllReceivers;
         private bool _suppressErrorUpdates;
         private bool _isChannelValid;
@@ -103,11 +103,7 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             private set => SetProperty(ref _isChannelInvalid, value);
         }
 
-        public bool IsRefreshingReceiver
-        {
-            get => _isRefreshingReceiver;
-            private set => SetProperty(ref _isRefreshingReceiver, value);
-        }
+        public bool IsRefreshingReceiver => SelectedReceiver is { } receiver && IsReceiverRefreshing(receiver.Id);
 
         public bool IsRefreshingAllReceivers
         {
@@ -192,7 +188,7 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             _filteredReceivers.Filter = FilterReceiver;
 
             RefreshAllReceiversCommand = new AsyncRelayCommand(RefreshAllReceiversAsync, CanRefreshAllReceivers);
-            RefreshSelectedReceiverCommand = new AsyncRelayCommand(RefreshSelectedReceiverAsync, CanRefreshSelectedReceiver);
+            RefreshSelectedReceiverCommand = new AsyncRelayCommand(RefreshSelectedReceiverAsync, CanRefreshSelectedReceiver, AsyncRelayCommandOptions.AllowConcurrentExecutions);
             SetChannelCommand = new AsyncRelayCommand(SetChannelAsync, CanSetChannel);
 
             AddReceiverCommand = new RelayCommand(() => AddReceiverRequested?.Invoke(this, EventArgs.Empty));
@@ -226,6 +222,7 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
                 return;
 
             OnPropertyChanged(nameof(HasSelectedReceiver));
+            OnPropertyChanged(nameof(IsRefreshingReceiver));
             RefreshSelectedReceiverCommand.NotifyCanExecuteChanged();
             SetChannelCommand.NotifyCanExecuteChanged();
             VirtualRemoteCommand.NotifyCanExecuteChanged();
@@ -237,7 +234,7 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             if (_receiverManager.SelectedReceiver is not { } receiver || !TryBeginReceiverRefresh(receiver))
                 return;
 
-            IsRefreshingReceiver = true;
+            OnPropertyChanged(nameof(IsRefreshingReceiver));
             NotifyRefreshCommandsCanExecuteChanged();
 
             try
@@ -250,9 +247,10 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             }
             finally
             {
-                IsRefreshingReceiver = false;
+                EndReceiverRefresh(receiver.Id);
+                OnPropertyChanged(nameof(IsRefreshingReceiver));
                 NotifyRefreshCommandsCanExecuteChanged();
-                _ = ReleaseRefreshCooldownAsync(_refreshButtonsDisabledUntilUtc);
+                _ = ReleaseRefreshCooldownAsync(receiver.LastRefreshRequestedUtc?.Add(RefreshReceiverCooldown) ?? DateTimeOffset.UtcNow);
             }
         }
 
@@ -283,20 +281,20 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
                 SuppressErrorUpdates = false;
                 IsRefreshingAllReceivers = false;
                 NotifyRefreshCommandsCanExecuteChanged();
-                _ = ReleaseRefreshCooldownAsync(_refreshButtonsDisabledUntilUtc);
+                _ = ReleaseRefreshCooldownAsync(_nextRefreshAllAtUtc);
             }
         }
 
         private bool CanRefreshSelectedReceiver()
         {
             lock (_refreshCooldownLock)
-                return SelectedReceiver is { } receiver && !IsRefreshingReceiver && !IsRefreshingAllReceivers && IsReceiverRefreshAvailable(receiver.Model, DateTimeOffset.UtcNow) && DateTimeOffset.UtcNow >= _refreshButtonsDisabledUntilUtc;
+                return SelectedReceiver is { } receiver && !IsRefreshingAllReceivers && receiver.Model.ActivityStatus == ReceiverActivityStatus.Idle && !_refreshingReceiverIds.Contains(receiver.Id) && IsReceiverRefreshAvailable(receiver.Model, DateTimeOffset.UtcNow);
         }
 
         private bool CanRefreshAllReceivers()
         {
             lock (_refreshCooldownLock)
-                return !IsRefreshingReceiver && !IsRefreshingAllReceivers && DateTimeOffset.UtcNow >= _nextRefreshAllAtUtc && DateTimeOffset.UtcNow >= _refreshButtonsDisabledUntilUtc;
+                return !IsRefreshingAllReceivers && DateTimeOffset.UtcNow >= _nextRefreshAllAtUtc;
         }
 
         private bool TryBeginReceiverRefresh(Receiver receiver)
@@ -305,11 +303,11 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             {
                 DateTimeOffset now = DateTimeOffset.UtcNow;
 
-                if (IsRefreshingReceiver || IsRefreshingAllReceivers || !IsReceiverRefreshAvailable(receiver, now) || now < _refreshButtonsDisabledUntilUtc)
+                if (_refreshingReceiverIds.Contains(receiver.Id) || !IsReceiverRefreshAvailable(receiver, now))
                     return false;
 
                 receiver.MarkRefreshRequested(now);
-                _refreshButtonsDisabledUntilUtc = now.Add(RefreshReceiverCooldown);
+                _refreshingReceiverIds.Add(receiver.Id);
                 return true;
             }
         }
@@ -320,16 +318,24 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             {
                 DateTimeOffset now = DateTimeOffset.UtcNow;
 
-                if (IsRefreshingReceiver || IsRefreshingAllReceivers || now < _nextRefreshAllAtUtc || now < _refreshButtonsDisabledUntilUtc)
+                if (IsRefreshingAllReceivers || now < _nextRefreshAllAtUtc)
                     return false;
 
-                foreach (Receiver receiver in _receiverManager.Receivers)
-                    receiver.MarkRefreshRequested(now);
-
                 _nextRefreshAllAtUtc = now.Add(RefreshAllReceiversCooldown);
-                _refreshButtonsDisabledUntilUtc = _nextRefreshAllAtUtc;
                 return true;
             }
+        }
+
+        private bool IsReceiverRefreshing(Guid receiverId)
+        {
+            lock (_refreshCooldownLock)
+                return _refreshingReceiverIds.Contains(receiverId);
+        }
+
+        private void EndReceiverRefresh(Guid receiverId)
+        {
+            lock (_refreshCooldownLock)
+                _refreshingReceiverIds.Remove(receiverId);
         }
 
         private static bool IsReceiverRefreshAvailable(Receiver receiver, DateTimeOffset now)
@@ -450,6 +456,15 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
         {
             RefreshReceiver(e.Receiver);
             ShowReceiverError(e.Receiver);
+
+            if (e.Receiver.Id == SelectedReceiver?.Id)
+            {
+                OnPropertyChanged(nameof(IsRefreshingReceiver));
+                RefreshSelectedReceiverCommand.NotifyCanExecuteChanged();
+
+                if (e.Receiver.ActivityStatus == ReceiverActivityStatus.Idle && e.Receiver.LastRefreshRequestedUtc is { } lastRefreshRequestedUtc)
+                    _ = ReleaseRefreshCooldownAsync(lastRefreshRequestedUtc.Add(RefreshReceiverCooldown));
+            }
         }
 
         public void ShowSuccess(string title, string message)
