@@ -1,11 +1,12 @@
 using SimulcastUtility.Application.Interfaces;
 using SimulcastUtility.Plugins.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace SimulcastUtility.Plugins.Services
 {
     internal sealed class PluginContext : IPluginContext
     {
-        public PluginContext(string installationDirectory, IReceiverRepository receiverRepository, IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IPluginApplicationDispatcher applicationDispatcher, IPluginThemeManager themeManager, IPluginUiManager uiManager, IPluginDataStore dataStore)
+        public PluginContext(string installationDirectory, IReceiverRepository receiverRepository, IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IPluginApplicationDispatcher applicationDispatcher, IPluginThemeManager themeManager, IPluginUiManager uiManager, IPluginDataStore dataStore, ILogger logger)
         {
             InstallationDirectory = installationDirectory;
             ReceiverRepository = receiverRepository;
@@ -15,6 +16,7 @@ namespace SimulcastUtility.Plugins.Services
             ThemeManager = themeManager;
             UiManager = uiManager;
             DataStore = dataStore;
+            Logger = logger;
         }
 
         public string InstallationDirectory { get; }
@@ -32,5 +34,7 @@ namespace SimulcastUtility.Plugins.Services
         public IPluginUiManager UiManager { get; }
 
         public IPluginDataStore DataStore { get; }
+
+        public ILogger Logger { get; }
     }
 }

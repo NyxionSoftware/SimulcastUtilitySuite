@@ -1,4 +1,5 @@
 using SimulcastUtility.Application.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace SimulcastUtility.Plugins.Interfaces
 {
@@ -19,5 +20,7 @@ namespace SimulcastUtility.Plugins.Interfaces
         IPluginUiManager UiManager { get; }
 
         IPluginDataStore DataStore { get; }
+
+        ILogger Logger { get; }
     }
 }

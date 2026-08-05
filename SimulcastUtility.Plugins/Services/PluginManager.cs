@@ -16,6 +16,7 @@ namespace SimulcastUtility.Plugins.Services
     {
         private readonly IOptionsMonitor<PluginOptions> _options;
         private readonly ILogger<PluginManager> _logger;
+        private readonly ILoggerFactory _loggerFactory;
         private readonly IReceiverRepository _receiverRepository;
         private readonly IReceiverManager _receiverManager;
         private readonly IReceiverCommandManager _receiverCommandManager;
@@ -26,10 +27,11 @@ namespace SimulcastUtility.Plugins.Services
         private readonly SemaphoreSlim _stateLock = new(1, 1);
         private readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = true };
 
-        public PluginManager(IOptionsMonitor<PluginOptions> options, ILogger<PluginManager> logger, IReceiverRepository receiverRepository, IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IPluginApplicationDispatcher applicationDispatcher, IPluginThemeManager pluginThemeManager, IPluginUiManager pluginUiManager)
+        public PluginManager(IOptionsMonitor<PluginOptions> options, ILogger<PluginManager> logger, ILoggerFactory loggerFactory, IReceiverRepository receiverRepository, IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IPluginApplicationDispatcher applicationDispatcher, IPluginThemeManager pluginThemeManager, IPluginUiManager pluginUiManager)
         {
             _options = options;
             _logger = logger;
+            _loggerFactory = loggerFactory;
             _pluginThemeManager = pluginThemeManager;
             _pluginUiManager = pluginUiManager;
             _receiverRepository = receiverRepository;
@@ -488,7 +490,8 @@ namespace SimulcastUtility.Plugins.Services
 
             IPluginDataStore dataStore = new PluginDataStore(_options.CurrentValue.DataDirectory, runtime.Model.Info.PluginIdentifier);
             string installationDirectory = Path.GetDirectoryName(runtime.Model.AssemblyPath) ?? throw new InvalidOperationException("The plugin installation directory is unavailable.");
-            IPluginContext pluginContext = new PluginContext(installationDirectory, _receiverRepository, _receiverManager, _receiverCommandManager, _applicationDispatcher, _pluginThemeManager, _pluginUiManager, dataStore);
+            ILogger pluginLogger = _loggerFactory.CreateLogger($"Plugin.{runtime.Model.Info.Name}");
+            IPluginContext pluginContext = new PluginContext(installationDirectory, _receiverRepository, _receiverManager, _receiverCommandManager, _applicationDispatcher, _pluginThemeManager, _pluginUiManager, dataStore, pluginLogger);
             await runtime.Plugin.InitializeAsync(pluginContext, cancellationToken);
             runtime.DataStore = dataStore;
 
