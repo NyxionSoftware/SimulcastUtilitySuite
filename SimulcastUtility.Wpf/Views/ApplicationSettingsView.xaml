@@ -17,6 +17,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Button Width="40"
                         Height="40"
@@ -31,6 +32,23 @@
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Style="{DynamicResource PageTitleTextStyle}" Text="Application Settings" />
                     <TextBlock Margin="0,4,0,0" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Text="Personal overrides for this Windows user." />
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" Orientation="Horizontal">
+                    <StackPanel Margin="0,0,14,0" VerticalAlignment="Center">
+                        <TextBlock Margin="0,3,0,0" HorizontalAlignment="Right" FontSize="10" Foreground="{DynamicResource MutedTextBrush}" Text="{Binding UpdateStatusMessage}" />
+                    </StackPanel>
+                    <Button Margin="0,0,10,0" Command="{Binding ShowPatchNotesCommand}" Style="{DynamicResource SecondaryButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Width="15" Height="15" Margin="0,0,8,0" Kind="TextBoxOutline" />
+                            <TextBlock Text="Patch Notes" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding CheckForUpdatesCommand}" Style="{DynamicResource PrimaryButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Width="15" Height="15" Margin="0,0,8,0" Kind="Update" />
+                            <TextBlock Text="Check for Updates" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -131,6 +149,12 @@
 
         <Border Grid.Row="2" Padding="20,16" Background="{DynamicResource SidebarBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
             <Grid>
+                <Button HorizontalAlignment="Left" Command="{Binding ShowAboutCommand}" Style="{DynamicResource SecondaryButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Width="15" Height="15" Margin="0,0,8,0" Kind="InformationOutline" />
+                        <TextBlock Text="About" />
+                    </StackPanel>
+                </Button>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock FontSize="11" Foreground="{DynamicResource ErrorBrush}" Text="{Binding StatusMessage}" TextWrapping="Wrap" Visibility="{Binding ErrorStatusVisibility}" />
                     <TextBlock FontSize="11" Foreground="{DynamicResource SuccessBrush}" Text="{Binding StatusMessage}" TextWrapping="Wrap" Visibility="{Binding SuccessStatusVisibility}" />
@@ -146,5 +170,82 @@
                 </StackPanel>
             </Grid>
         </Border>
+
+        <Grid Grid.RowSpan="3" Panel.ZIndex="200" Background="#99000000" Visibility="{Binding UpdateOverlayVisibility}">
+            <Border Width="440" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24" Style="{DynamicResource CardBorderStyle}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Width="22" Height="22" Margin="0,0,10,0" Foreground="{DynamicResource SuccessBrush}" Kind="DownloadCircleOutline" />
+                        <TextBlock Style="{DynamicResource SectionTitleTextStyle}" Text="A new version is available" />
+                    </StackPanel>
+                    <TextBlock Margin="0,12,0,6" FontSize="13" Foreground="{DynamicResource PrimaryTextBrush}" Text="{Binding AvailableVersion, StringFormat=Simulcast Utility Suite v{0} is ready to download.}" TextWrapping="Wrap" />
+                    <TextBlock Margin="0,0,0,22" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Text="Would you like to open the GitHub release page to download it?" TextWrapping="Wrap" />
+                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Margin="0,0,10,0" Command="{Binding DismissUpdateCommand}" Content="Not Now" Style="{DynamicResource SecondaryButtonStyle}" />
+                        <Button Command="{Binding DownloadUpdateCommand}" Style="{DynamicResource PrimaryButtonStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconMaterial Width="15" Height="15" Margin="0,0,8,0" Kind="OpenInNew" />
+                                <TextBlock Text="View Download" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.RowSpan="3" Panel.ZIndex="200" Background="#99000000" Visibility="{Binding PatchNotesVisibility}">
+            <Border Width="560" MaxHeight="560" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24" Style="{DynamicResource CardBorderStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Width="22" Height="22" Margin="0,0,10,0" Foreground="{DynamicResource AccentBrush}" Kind="TextBoxOutline" />
+                        <TextBlock Style="{DynamicResource SectionTitleTextStyle}" Text="{Binding CurrentVersion, StringFormat=Patch Notes - v{0}}" />
+                    </StackPanel>
+                    <FlowDocumentScrollViewer Grid.Row="1"
+                                              Margin="0,18,0,22"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              Document="{Binding PatchNotesDocument}"
+                                              IsToolBarVisible="False"
+                                              VerticalScrollBarVisibility="Auto" />
+                    <Button Grid.Row="2" HorizontalAlignment="Right" Command="{Binding DismissPatchNotesCommand}" Content="Close" Style="{DynamicResource PrimaryButtonStyle}" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Grid Grid.RowSpan="3" Panel.ZIndex="200" Background="#99000000" Visibility="{Binding AboutVisibility}">
+            <Border Width="480" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="24" Style="{DynamicResource CardBorderStyle}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Width="24" Height="24" Margin="0,0,11,0" Foreground="{DynamicResource AccentBrush}" Kind="InformationOutline" />
+                        <StackPanel>
+                            <TextBlock Style="{DynamicResource SectionTitleTextStyle}" Text="About Simulcast Utility Suite" />
+                            <TextBlock Margin="0,3,0,0" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" Text="{Binding CurrentVersion, StringFormat=Version {0}}" />
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock Margin="0,18,0,8" FontSize="12" Foreground="{DynamicResource PrimaryTextBrush}" Text="Developed by Jamie Head through Nyxion Software." TextWrapping="Wrap" />
+                    <TextBlock Margin="0,0,0,20" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Text="Simulcast Utility Suite is a modern Windows application for discovering, managing, monitoring, and controlling compatible receivers." TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal">
+                        <Button Margin="0,0,10,0" Command="{Binding OpenRepositoryCommand}" Style="{DynamicResource SecondaryButtonStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconMaterial Width="15" Height="15" Margin="0,0,8,0" Kind="Github" />
+                                <TextBlock Text="GitHub Repository" />
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding OpenWebsiteCommand}" Style="{DynamicResource SecondaryButtonStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconMaterial Width="15" Height="15" Margin="0,0,8,0" Kind="Web" />
+                                <TextBlock Text="Nyxion Software" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <Button Margin="0,22,0,0" HorizontalAlignment="Right" Command="{Binding DismissAboutCommand}" Content="Close" Style="{DynamicResource PrimaryButtonStyle}" />
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

@@ -8,16 +8,27 @@ using SimulcastUtility.Plugins.Options;
 using SimulcastUtility.Plugins.Interfaces;
 using SimulcastUtility.Application.Interfaces;
 using SimulcastUtility.Wpf.Options;
+using SimulcastUtility.Wpf.Services;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Security.Principal;
+using System.Windows.Documents;
 
 namespace SimulcastUtility.Wpf.ViewModels.Views
 {
     public sealed class ApplicationSettingsViewModel : ObservableObject
     {
+        private const string ReleasesUrl = "https://github.com/NyxionSoftware/SimulcastUtilitySuite/releases";
+        private const string RepositoryUrl = "https://github.com/NyxionSoftware/SimulcastUtilitySuite";
+        private const string WebsiteUrl = "https://nyxionsoftware.com/";
+        private const string LatestReleaseApiUrl = "https://api.github.com/repos/NyxionSoftware/SimulcastUtilitySuite/releases/latest";
+        private static readonly HttpClient UpdateClient = CreateUpdateClient();
         private readonly string _userSettingsFilePath;
         private readonly string _workstationSettingsFilePath;
         private readonly string _logDirectory;
@@ -39,12 +50,95 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
         private bool _hasChanges;
         private string _selectedConfigurationScope = "User";
         private bool _suppressChangeTracking;
+        private bool _isCheckingForUpdates;
+        private bool _isUpdateAvailable;
+        private string _updateStatusMessage = string.Empty;
+        private string _availableVersion = string.Empty;
+        private bool _isPatchNotesVisible;
+        private bool _isAboutVisible;
+        private bool _hasLoadedPatchNotes;
+        private bool _isLoadingPatchNotes;
+        private FlowDocument _patchNotesDocument = MarkdownFlowDocumentRenderer.CreateMessage("Select Patch Notes to load release information.");
 
         public ObservableCollection<string> LogLevels { get; } = new() { "Verbose", "Debug", "Information", "Warning", "Error", "Fatal" };
 
         public ObservableCollection<string> ConfigurationScopes { get; }
 
         public bool IsWorkstationScopeAvailable { get; }
+
+        public string CurrentVersion { get; } = GetCurrentVersion();
+
+        public string UpdateStatusMessage
+        {
+            get => _updateStatusMessage;
+            private set => SetProperty(ref _updateStatusMessage, value);
+        }
+
+        public bool IsCheckingForUpdates
+        {
+            get => _isCheckingForUpdates;
+            private set
+            {
+                if (!SetProperty(ref _isCheckingForUpdates, value))
+                    return;
+
+                CheckForUpdatesCommand.NotifyCanExecuteChanged();
+            }
+        }
+
+        public bool IsUpdateAvailable
+        {
+            get => _isUpdateAvailable;
+            private set
+            {
+                if (!SetProperty(ref _isUpdateAvailable, value))
+                    return;
+
+                OnPropertyChanged(nameof(UpdateOverlayVisibility));
+            }
+        }
+
+        public string AvailableVersion
+        {
+            get => _availableVersion;
+            private set => SetProperty(ref _availableVersion, value);
+        }
+
+        public System.Windows.Visibility UpdateOverlayVisibility => IsUpdateAvailable ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+
+        public FlowDocument PatchNotesDocument
+        {
+            get => _patchNotesDocument;
+            private set => SetProperty(ref _patchNotesDocument, value);
+        }
+
+        public bool IsPatchNotesVisible
+        {
+            get => _isPatchNotesVisible;
+            private set
+            {
+                if (!SetProperty(ref _isPatchNotesVisible, value))
+                    return;
+
+                OnPropertyChanged(nameof(PatchNotesVisibility));
+            }
+        }
+
+        public bool IsAboutVisible
+        {
+            get => _isAboutVisible;
+            private set
+            {
+                if (!SetProperty(ref _isAboutVisible, value))
+                    return;
+
+                OnPropertyChanged(nameof(AboutVisibility));
+            }
+        }
+
+        public System.Windows.Visibility PatchNotesVisibility => IsPatchNotesVisible ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+
+        public System.Windows.Visibility AboutVisibility => IsAboutVisible ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
 
         public string SelectedConfigurationScope
         {
@@ -162,6 +256,24 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
 
         public IRelayCommand CloseCommand { get; }
 
+        public IAsyncRelayCommand CheckForUpdatesCommand { get; }
+
+        public IRelayCommand DownloadUpdateCommand { get; }
+
+        public IRelayCommand DismissUpdateCommand { get; }
+
+        public IRelayCommand ShowPatchNotesCommand { get; }
+
+        public IRelayCommand DismissPatchNotesCommand { get; }
+
+        public IRelayCommand ShowAboutCommand { get; }
+
+        public IRelayCommand DismissAboutCommand { get; }
+
+        public IRelayCommand OpenRepositoryCommand { get; }
+
+        public IRelayCommand OpenWebsiteCommand { get; }
+
         public event EventHandler? CloseRequested;
 
         public ApplicationSettingsViewModel(IOptionsMonitor<NotificationOptions> notificationOptions, IOptionsMonitor<LoggingOptions> loggingOptions, IOptionsMonitor<PluginOptions> pluginOptions, IOptionsMonitor<JsonReceiverRepositoryOptions> receiverOptions, IReceiverManager receiverManager, IPluginManager pluginManager)
@@ -185,6 +297,154 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             _logLevel = ReadLogLevel(_userSettingsFilePath, ReadLogLevel(_workstationSettingsFilePath, "Information"));
             SaveCommand = new AsyncRelayCommand(SaveAsync, () => !IsSaving && HasChanges);
             CloseCommand = new RelayCommand(() => CloseRequested?.Invoke(this, EventArgs.Empty));
+            CheckForUpdatesCommand = new AsyncRelayCommand(CheckForUpdatesAsync, () => !IsCheckingForUpdates);
+            DownloadUpdateCommand = new RelayCommand(() =>
+            {
+                IsUpdateAvailable = false;
+                OpenReleasesPage();
+            });
+            DismissUpdateCommand = new RelayCommand(() => IsUpdateAvailable = false);
+            ShowPatchNotesCommand = new AsyncRelayCommand(ShowPatchNotesAsync, () => !IsLoadingPatchNotes);
+            DismissPatchNotesCommand = new RelayCommand(() => IsPatchNotesVisible = false);
+            ShowAboutCommand = new RelayCommand(() => IsAboutVisible = true);
+            DismissAboutCommand = new RelayCommand(() => IsAboutVisible = false);
+            OpenRepositoryCommand = new RelayCommand(() => OpenUrl(RepositoryUrl));
+            OpenWebsiteCommand = new RelayCommand(() => OpenUrl(WebsiteUrl));
+        }
+
+        private async Task ShowPatchNotesAsync()
+        {
+            IsPatchNotesVisible = true;
+
+            if (_hasLoadedPatchNotes)
+                return;
+
+            IsLoadingPatchNotes = true;
+            PatchNotesDocument = MarkdownFlowDocumentRenderer.CreateMessage("Loading patch notes...");
+
+            try
+            {
+                string releaseJson = await GetReleaseForCurrentVersionAsync();
+                using JsonDocument document = JsonDocument.Parse(releaseJson);
+                string releaseName = document.RootElement.TryGetProperty("name", out JsonElement nameElement) ? nameElement.GetString() ?? string.Empty : string.Empty;
+                string markdown = document.RootElement.TryGetProperty("body", out JsonElement bodyElement) ? bodyElement.GetString() ?? string.Empty : string.Empty;
+
+                if (string.IsNullOrWhiteSpace(markdown))
+                    markdown = $"# {releaseName}\n\nNo patch notes were provided for this release.";
+
+                PatchNotesDocument = MarkdownFlowDocumentRenderer.Render(markdown);
+                _hasLoadedPatchNotes = true;
+            }
+            catch (Exception ex)
+            {
+                PatchNotesDocument = MarkdownFlowDocumentRenderer.CreateError($"Patch notes could not be loaded.\n\n{ex.Message}");
+            }
+            finally
+            {
+                IsLoadingPatchNotes = false;
+            }
+        }
+
+        private async Task<string> GetReleaseForCurrentVersionAsync()
+        {
+            string escapedVersion = Uri.EscapeDataString(CurrentVersion);
+
+            foreach (string tag in new[] { $"v{escapedVersion}", escapedVersion })
+            {
+                using HttpResponseMessage response = await UpdateClient.GetAsync($"https://api.github.com/repos/NyxionSoftware/SimulcastUtilitySuite/releases/tags/{tag}");
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadAsStringAsync();
+
+                if (response.StatusCode != System.Net.HttpStatusCode.NotFound)
+                    response.EnsureSuccessStatusCode();
+            }
+
+            throw new InvalidOperationException($"No GitHub release was found for version {CurrentVersion}.");
+        }
+
+        private bool IsLoadingPatchNotes
+        {
+            get => _isLoadingPatchNotes;
+            set
+            {
+                if (!SetProperty(ref _isLoadingPatchNotes, value))
+                    return;
+
+                ShowPatchNotesCommand.NotifyCanExecuteChanged();
+            }
+        }
+
+        private async Task CheckForUpdatesAsync()
+        {
+            IsCheckingForUpdates = true;
+            UpdateStatusMessage = "Checking for updates...";
+
+            try
+            {
+                using HttpResponseMessage response = await UpdateClient.GetAsync(LatestReleaseApiUrl);
+                response.EnsureSuccessStatusCode();
+                using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+                string tagName = document.RootElement.GetProperty("tag_name").GetString() ?? string.Empty;
+
+                if (!TryParseVersion(tagName, out Version? latestVersion) || !TryParseVersion(CurrentVersion, out Version? currentVersion))
+                    throw new InvalidOperationException("GitHub returned an invalid release version.");
+
+                if (latestVersion > currentVersion)
+                {
+                    AvailableVersion = latestVersion.ToString(3);
+                    UpdateStatusMessage = $"Version {AvailableVersion} is available.";
+                    IsUpdateAvailable = true;
+                }
+                else
+                {
+                    UpdateStatusMessage = "Up to date.";
+                }
+            }
+            catch (Exception ex)
+            {
+                UpdateStatusMessage = $"Unable to check for updates: {ex.Message}";
+            }
+            finally
+            {
+                IsCheckingForUpdates = false;
+            }
+        }
+
+        private static void OpenReleasesPage()
+        {
+            OpenUrl(ReleasesUrl);
+        }
+
+        private static void OpenUrl(string url)
+        {
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+
+        private static HttpClient CreateUpdateClient()
+        {
+            HttpClient client = new() { Timeout = TimeSpan.FromSeconds(10) };
+            client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("SimulcastUtility", GetCurrentVersion()));
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
+            return client;
+        }
+
+        private static string GetCurrentVersion()
+        {
+            Assembly assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+            string? informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+
+            if (!string.IsNullOrWhiteSpace(informationalVersion))
+                return informationalVersion.Split('+')[0];
+
+            Version version = assembly.GetName().Version ?? new Version(1, 0, 0);
+            return $"{version.Major}.{version.Minor}.{Math.Max(version.Build, 0)}";
+        }
+
+        private static bool TryParseVersion(string value, out Version? version)
+        {
+            string normalized = value.Trim().TrimStart('v', 'V').Split('-', '+')[0];
+            return Version.TryParse(normalized, out version);
         }
 
         private async Task SaveAsync()
