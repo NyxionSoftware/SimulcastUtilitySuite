@@ -4,12 +4,20 @@ setlocal
 set "ROOT=%~dp0.."
 set "INSTALLER_ROOT=%~dp0"
 set "ISCC=C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
-set "ISCC_DEFINES="
+set "APPLICATION_PROJECT=%ROOT%\SimulcastUtility\SimulcastUtility.csproj"
+set "PRODUCT_VERSION="
 
-if not "%~1"=="" (
-    set "ISCC_DEFINES=/DProductVersion=%~1"
-    echo Building Simulcast Utility %~1...
+for /f "usebackq delims=" %%V in (`powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "%INSTALLER_ROOT%Inno\GetProjectVersion.ps1" -ProjectPath "%APPLICATION_PROJECT%"`) do (
+    set "PRODUCT_VERSION=%%V"
 )
+
+if not defined PRODUCT_VERSION (
+    echo The product version could not be read from "%APPLICATION_PROJECT%".
+    exit /b 1
+)
+
+set "ISCC_DEFINES=/DProductVersion=%PRODUCT_VERSION%"
+echo Building Simulcast Utility %PRODUCT_VERSION%...
 
 if not exist "%ISCC%" (
     echo Inno Setup 6 was not found at "%ISCC%".

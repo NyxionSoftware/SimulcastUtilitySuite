@@ -1,3 +1,3 @@
 #ifndef ProductVersion
-  #define ProductVersion "1.0.0"
+  #error ProductVersion must be supplied by build-installer.cmd from SimulcastUtility.csproj.
 #endif
