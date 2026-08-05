@@ -30,6 +30,10 @@ namespace SimulcastUtility.Plugins.Services
 
         public Task ShowDialogAsync(Guid pluginIdentifier, PluginDialogRequest dialog, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
+        public Task NavigateToPageAsync(Guid pluginIdentifier, FrameworkElement page, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task NavigateBackAsync(Guid pluginIdentifier, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
         public Task RemovePluginUiAsync(Guid pluginIdentifier, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

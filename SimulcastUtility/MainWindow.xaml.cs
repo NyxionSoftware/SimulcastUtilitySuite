@@ -7,8 +7,6 @@ using SimulcastUtility.Wpf.Views;
 using SimulcastUtility.Wpf.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 
 namespace SimulcastUtility
 {
@@ -22,8 +20,9 @@ namespace SimulcastUtility
         private readonly IPluginManager _pluginManager;
         private readonly IPluginApplicationDispatcher _pluginApplicationDispatcher;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ApplicationNavigationService _navigationService;
 
-        public MainWindow(MainView mainView, MainViewModel viewModel, IPluginManager pluginManager, IPluginApplicationDispatcher pluginApplicationDispatcher, IReceiverCommandManager receiverCommandManager, IReceiverManager receiverManager, IServiceProvider serviceProvider)
+        public MainWindow(MainView mainView, MainViewModel viewModel, IPluginManager pluginManager, IPluginApplicationDispatcher pluginApplicationDispatcher, IReceiverCommandManager receiverCommandManager, IReceiverManager receiverManager, IServiceProvider serviceProvider, ApplicationNavigationService navigationService, ApplicationOverlayViewModel overlayViewModel)
         {
             InitializeComponent();
             _mainView = mainView;
@@ -33,6 +32,7 @@ namespace SimulcastUtility
             _pluginManager = pluginManager;
             _pluginApplicationDispatcher = pluginApplicationDispatcher;
             _serviceProvider = serviceProvider;
+            _navigationService = navigationService;
             viewModel.UpdateLoadedPluginCount(pluginManager.Plugins.Count);
             pluginManager.PluginsChanged += PluginsChanged;
             pluginApplicationDispatcher.CommandDispatched += PluginCommandDispatched;
@@ -42,14 +42,15 @@ namespace SimulcastUtility
             viewModel.AddReceiverRequested += (_, _) => OpenReceiverManager(beginAdd: true);
             viewModel.EditReceiverRequested += receiver => OpenReceiverManager(receiver.Id);
             viewModel.SettingsRequested += (_, _) => OpenSettings();
-            ViewHost.Content = mainView;
+            DataContext = overlayViewModel;
+            _navigationService.Initialize(ViewHost, mainView);
         }
 
         private void OpenSettings()
         {
             ApplicationSettingsViewModel viewModel = _serviceProvider.GetRequiredService<ApplicationSettingsViewModel>();
             ApplicationSettingsView view = new(viewModel);
-            viewModel.CloseRequested += (_, _) => NavigateTo(_mainView, slideFromRight: false);
+            viewModel.CloseRequested += (_, _) => _navigationService.NavigateBack();
             NavigateTo(view, slideFromRight: true);
         }
 
@@ -60,7 +61,7 @@ namespace SimulcastUtility
             viewModel.CloseRequested += (_, _) =>
             {
                 viewModel.Dispose();
-                NavigateTo(_mainView, slideFromRight: false);
+                _navigationService.NavigateBack();
             };
             NavigateTo(view, slideFromRight: true);
         }
@@ -87,7 +88,7 @@ namespace SimulcastUtility
             switch (command.Name.Trim().ToLowerInvariant())
             {
                 case "show-main":
-                    NavigateTo(_mainView, slideFromRight: false);
+                    _navigationService.NavigateToFallback(clearHistory: true);
                     Activate();
                     break;
                 case "manage-receivers":
@@ -98,7 +99,7 @@ namespace SimulcastUtility
                     break;
                 case "select-receiver" when command.Arguments.TryGetValue("receiverId", out string? receiverIdValue) && Guid.TryParse(receiverIdValue, out Guid receiverId):
                     _receiverManager.SelectReceiver(receiverId);
-                    NavigateTo(_mainView, slideFromRight: false);
+                    _navigationService.NavigateToFallback(clearHistory: true);
                     break;
             }
         }
@@ -111,12 +112,11 @@ namespace SimulcastUtility
             viewModel.CloseRequested += (_, _) =>
             {
                 viewModel.Dispose();
-                NavigateTo(_mainView, slideFromRight: false);
+                _navigationService.NavigateBack();
             };
 
             viewModel.DiscoverReceiversRequested += (_, _) =>
             {
-                viewModel.Dispose();
                 OpenReceiverDiscovery();
             };
 
@@ -130,27 +130,14 @@ namespace SimulcastUtility
             viewModel.BackRequested += (_, _) =>
             {
                 viewModel.Dispose();
-                OpenReceiverManager(slideFromRight: false);
+                _navigationService.NavigateBack();
             };
             NavigateTo(view, slideFromRight: true);
         }
 
         private void NavigateTo(UIElement view, bool slideFromRight)
         {
-            ViewHost.Content = view;
-
-            TranslateTransform transform = new(slideFromRight ? ActualWidth : -ActualWidth, 0);
-            view.RenderTransform = transform;
-
-            DoubleAnimation animation = new()
-            {
-                From = transform.X,
-                To = 0,
-                Duration = TimeSpan.FromMilliseconds(260),
-                EasingFunction = new CubicEase() { EasingMode = EasingMode.EaseOut }
-            };
-
-            transform.BeginAnimation(TranslateTransform.XProperty, animation);
+            _navigationService.NavigateTo(view, slideFromRight);
         }
 
         private void OpenVirtualRemote(ReceiverViewModel receiver)

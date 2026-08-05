@@ -34,10 +34,6 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
 
         public ObservableCollection<DiscoveredReceiverViewModel> DiscoveredReceivers { get; } = new();
 
-        public ReadOnlyObservableCollection<NotificationViewModel> Notifications => _notificationHost.Notifications;
-
-        public IRelayCommand<NotificationViewModel> DismissNotificationCommand => _notificationHost.DismissNotificationCommand;
-
         public string StartIpAddress
         {
             get => _startIpAddress;

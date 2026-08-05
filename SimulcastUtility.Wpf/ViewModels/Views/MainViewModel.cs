@@ -1,15 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.Options;
 using SimulcastUtility.Application.Events;
 using SimulcastUtility.Application.Interfaces;
 using SimulcastUtility.Application.Protocol.Commands;
 using SimulcastUtility.Application.Protocol.Payloads;
 using SimulcastUtility.Core.Models;
 using SimulcastUtility.Wpf.ViewModels.Models;
-using SimulcastUtility.Wpf.Options;
-using SimulcastUtility.Plugins.Interfaces;
-using SimulcastUtility.Plugins.Models;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -23,10 +19,8 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
     {
         private readonly IReceiverManager _receiverManager;
         private readonly IReceiverCommandManager _receiverCommandManager;
-        private readonly IOptionsMonitor<NotificationOptions> _notificationOptions;
-        private readonly IPluginUiManager _pluginUiManager;
+        private readonly ApplicationOverlayViewModel _overlayViewModel;
         private readonly ObservableCollection<ReceiverViewModel> _receivers = new();
-        private readonly ObservableCollection<NotificationViewModel> _notifications = new();
         private readonly ConcurrentDictionary<string, byte> _displayedReceiverErrors = new();
         private readonly ICollectionView _filteredReceivers;
         private readonly object _refreshCooldownLock = new();
@@ -51,8 +45,6 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
 
         public ReadOnlyObservableCollection<ReceiverViewModel> Receivers { get; }
 
-        public ReadOnlyObservableCollection<NotificationViewModel> Notifications { get; }
-
         public ICollectionView FilteredReceivers => _filteredReceivers;
 
         public IAsyncRelayCommand RefreshAllReceiversCommand { get; }
@@ -72,8 +64,6 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
         public IRelayCommand ManagePluginsCommand { get; }
 
         public IRelayCommand SettingsCommand { get; }
-
-        public IRelayCommand<NotificationViewModel> DismissNotificationCommand { get; }
 
         public event EventHandler? AddReceiverRequested;
 
@@ -181,17 +171,15 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             }
         }
 
-        public MainViewModel(IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IOptionsMonitor<NotificationOptions> notificationOptions, IPluginUiManager pluginUiManager)
+        public MainViewModel(IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, ApplicationOverlayViewModel overlayViewModel)
         {
             _receiverManager = receiverManager;
             _receiverCommandManager = receiverCommandManager;
-            _notificationOptions = notificationOptions;
-            _pluginUiManager = pluginUiManager;
+            _overlayViewModel = overlayViewModel;
 
             _receiverManager.SelectedReceiverChanged += SelectedReceiverChanged;
             _receiverCommandManager.ReceiverConnectionStatusChanged += ReceiverStatusChanged;
             _receiverCommandManager.ReceiverActivityStatusChanged += ReceiverStatusChanged;
-            _pluginUiManager.NotificationRequested += PluginNotificationRequested;
             _channelProgressTimer.Tick += ChannelProgressTimerTick;
             _channelProgressTimer.Start();
 
@@ -199,7 +187,6 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
                 _receivers.Add(new ReceiverViewModel(receiver));
 
             Receivers = new ReadOnlyObservableCollection<ReceiverViewModel>(_receivers);
-            Notifications = new ReadOnlyObservableCollection<NotificationViewModel>(_notifications);
 
             _filteredReceivers = CollectionViewSource.GetDefaultView(_receivers);
             _filteredReceivers.Filter = FilterReceiver;
@@ -214,7 +201,6 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             EditReceiverCommand = new RelayCommand(() => EditReceiverRequested?.Invoke(SelectedReceiver!), () => HasSelectedReceiver);
             ManagePluginsCommand = new RelayCommand(() => ManagePluginsRequested?.Invoke(this, EventArgs.Empty));
             SettingsCommand = new RelayCommand(() => SettingsRequested?.Invoke(this, EventArgs.Empty));
-            DismissNotificationCommand = new RelayCommand<NotificationViewModel>(DismissNotification);
 
             if (receiverManager.Receivers is INotifyCollectionChanged collectionChanged)
                 collectionChanged.CollectionChanged += Receivers_CollectionChanged;
@@ -468,38 +454,17 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
 
         public void ShowSuccess(string title, string message)
         {
-            AddNotification(CreateNotification(title, message, NotificationSeverity.Success));
+            _overlayViewModel.ShowSuccess(title, message);
         }
 
         public void ShowInfo(string title, string message)
         {
-            AddNotification(CreateNotification(title, message, NotificationSeverity.Info));
+            _overlayViewModel.ShowInformation(title, message);
         }
 
         public void ShowError(string title, string message)
         {
-            AddNotification(CreateNotification(title, message, NotificationSeverity.Error));
-        }
-
-        private void PluginNotificationRequested(object? sender, PluginNotificationRequest notification)
-        {
-            switch (notification.Severity)
-            {
-                case PluginNotificationSeverity.Success:
-                    ShowSuccess(notification.Title, notification.Message);
-                    break;
-                case PluginNotificationSeverity.Error:
-                    ShowError(notification.Title, notification.Message);
-                    break;
-                default:
-                    ShowInfo(notification.Title, notification.Message);
-                    break;
-            }
-        }
-
-        private NotificationViewModel CreateNotification(string title, string message, NotificationSeverity severity)
-        {
-            return new NotificationViewModel(title, message, severity, _notificationOptions.CurrentValue.GetDisplayDuration());
+            _overlayViewModel.ShowError(title, message);
         }
 
         private void ShowReceiverError(Receiver receiver)
@@ -516,39 +481,6 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
                 return;
 
             ShowError($"{receiver.Configuration.Name}: {error.Message}", string.IsNullOrWhiteSpace(error.InnerMessage) ? error.ErrorCode ?? "Receiver error" : error.InnerMessage);
-        }
-
-        private void AddNotification(NotificationViewModel notification)
-        {
-            System.Windows.Threading.Dispatcher? dispatcher = System.Windows.Application.Current?.Dispatcher;
-
-            if (dispatcher is null || dispatcher.CheckAccess())
-            {
-                _notifications.Add(notification);
-                _ = DismissNotificationAfterDelayAsync(notification);
-                return;
-            }
-
-            dispatcher.Invoke(() => _notifications.Add(notification));
-            _ = DismissNotificationAfterDelayAsync(notification);
-        }
-
-        private void DismissNotification(NotificationViewModel? notification)
-        {
-            if (notification is not null)
-                _notifications.Remove(notification);
-        }
-
-        private async Task DismissNotificationAfterDelayAsync(NotificationViewModel notification)
-        {
-            await Task.Delay(notification.DisplayDuration);
-
-            System.Windows.Threading.Dispatcher? dispatcher = System.Windows.Application.Current?.Dispatcher;
-
-            if (dispatcher is null || dispatcher.HasShutdownStarted)
-                return;
-
-            await dispatcher.InvokeAsync(() => _notifications.Remove(notification));
         }
 
         public void RefreshReceiver(Receiver receiver)

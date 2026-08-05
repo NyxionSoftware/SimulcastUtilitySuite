@@ -1,5 +1,6 @@
 using SimulcastUtility.Plugins.Interfaces;
 using SimulcastUtility.Plugins.Models;
+using SimulcastUtility.Wpf.ViewModels.Views;
 using System.Windows;
 using System.Windows.Media;
 
@@ -8,10 +9,17 @@ namespace SimulcastUtility.Wpf.Services
     public sealed class WpfPluginUiManager : IPluginUiManager
     {
         private readonly Dictionary<Guid, List<Action>> _cleanupActions = new();
-        private readonly Dictionary<Guid, List<Window>> _pluginDialogs = new();
+        private readonly ApplicationNavigationService _navigationService;
+        private readonly ApplicationOverlayViewModel _overlayViewModel;
         private readonly List<WeakReference<FrameworkElement>> _visualRoots = new();
 
         public event EventHandler<PluginNotificationRequest>? NotificationRequested;
+
+        public WpfPluginUiManager(ApplicationNavigationService navigationService, ApplicationOverlayViewModel overlayViewModel)
+        {
+            _navigationService = navigationService;
+            _overlayViewModel = overlayViewModel;
+        }
 
         public void RegisterVisualRoot(FrameworkElement visualRoot)
         {
@@ -69,15 +77,30 @@ namespace SimulcastUtility.Wpf.Services
             ValidatePluginIdentifier(pluginIdentifier);
             ArgumentNullException.ThrowIfNull(notification);
             cancellationToken.ThrowIfCancellationRequested();
-            return System.Windows.Application.Current.Dispatcher.InvokeAsync(() => NotificationRequested?.Invoke(this, notification)).Task;
+            return System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                NotificationRequested?.Invoke(this, notification);
+
+                switch (notification.Severity)
+                {
+                    case PluginNotificationSeverity.Success:
+                        _overlayViewModel.ShowSuccess(notification.Title, notification.Message);
+                        break;
+                    case PluginNotificationSeverity.Error:
+                        _overlayViewModel.ShowError(notification.Title, notification.Message);
+                        break;
+                    default:
+                        _overlayViewModel.ShowInformation(notification.Title, notification.Message);
+                        break;
+                }
+            }).Task;
         }
 
         public async Task<bool> ShowConfirmationAsync(Guid pluginIdentifier, string title, string message, CancellationToken cancellationToken = default)
         {
             ValidatePluginIdentifier(pluginIdentifier);
             cancellationToken.ThrowIfCancellationRequested();
-            MessageBoxResult result = await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => MessageBox.Show(GetMainWindow(), message, title, MessageBoxButton.YesNo, MessageBoxImage.Question));
-            return result == MessageBoxResult.Yes;
+            return await _overlayViewModel.ShowConfirmationAsync(pluginIdentifier, title, message, cancellationToken);
         }
 
         public async Task ShowDialogAsync(Guid pluginIdentifier, PluginDialogRequest dialog, CancellationToken cancellationToken = default)
@@ -86,29 +109,22 @@ namespace SimulcastUtility.Wpf.Services
             ArgumentNullException.ThrowIfNull(dialog);
             cancellationToken.ThrowIfCancellationRequested();
 
-            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                Window window = new()
-                {
-                    Owner = GetMainWindow(),
-                    Title = dialog.Title,
-                    Content = dialog.Content,
-                    Width = dialog.Width,
-                    Height = dialog.Height,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
-                };
-                window.SourceInitialized += (_, _) => WindowChromeService.ApplyToWindow(window);
+            await _overlayViewModel.ShowDialogAsync(pluginIdentifier, dialog.Title, dialog.Content, dialog.Width, cancellationToken);
+        }
 
-                if (!_pluginDialogs.TryGetValue(pluginIdentifier, out List<Window>? dialogs))
-                {
-                    dialogs = new List<Window>();
-                    _pluginDialogs.Add(pluginIdentifier, dialogs);
-                }
+        public Task NavigateToPageAsync(Guid pluginIdentifier, FrameworkElement page, CancellationToken cancellationToken = default)
+        {
+            ValidatePluginIdentifier(pluginIdentifier);
+            ArgumentNullException.ThrowIfNull(page);
+            cancellationToken.ThrowIfCancellationRequested();
+            return System.Windows.Application.Current.Dispatcher.InvokeAsync(() => _navigationService.NavigateTo(page, pluginIdentifier: pluginIdentifier)).Task;
+        }
 
-                dialogs.Add(window);
-                window.Closed += (_, _) => dialogs.Remove(window);
-                window.Show();
-            });
+        public Task NavigateBackAsync(Guid pluginIdentifier, CancellationToken cancellationToken = default)
+        {
+            ValidatePluginIdentifier(pluginIdentifier);
+            cancellationToken.ThrowIfCancellationRequested();
+            return System.Windows.Application.Current.Dispatcher.InvokeAsync(_navigationService.NavigateBack).Task;
         }
 
         public async Task RemovePluginUiAsync(Guid pluginIdentifier, CancellationToken cancellationToken = default)
@@ -117,13 +133,8 @@ namespace SimulcastUtility.Wpf.Services
 
             await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                if (_pluginDialogs.Remove(pluginIdentifier, out List<Window>? dialogs))
-                {
-                    foreach (Window dialog in dialogs.ToArray())
-                        dialog.Close();
-
-                    dialogs.Clear();
-                }
+                _overlayViewModel.RemovePluginOverlays(pluginIdentifier);
+                _navigationService.RemovePluginPages(pluginIdentifier);
 
                 List<Action>? cleanupActions;
 

@@ -21,6 +21,10 @@ namespace SimulcastUtility.Plugins.Interfaces
 
         Task ShowDialogAsync(Guid pluginIdentifier, PluginDialogRequest dialog, CancellationToken cancellationToken = default);
 
+        Task NavigateToPageAsync(Guid pluginIdentifier, FrameworkElement page, CancellationToken cancellationToken = default);
+
+        Task NavigateBackAsync(Guid pluginIdentifier, CancellationToken cancellationToken = default);
+
         Task RemovePluginUiAsync(Guid pluginIdentifier, CancellationToken cancellationToken = default);
     }
 }

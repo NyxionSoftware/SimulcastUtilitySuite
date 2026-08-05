@@ -31,10 +31,6 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
 
         public ObservableCollection<ReceiverConfigurationItemViewModel> Receivers { get; } = new();
 
-        public ReadOnlyObservableCollection<NotificationViewModel> Notifications => _notificationHost.Notifications;
-
-        public IRelayCommand<NotificationViewModel> DismissNotificationCommand => _notificationHost.DismissNotificationCommand;
-
         public ReceiverConfigurationItemViewModel? SelectedReceiver
         {
             get => _selectedReceiver;

@@ -4,6 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SimulcastUtility"
+        xmlns:behaviors="clr-namespace:SimulcastUtility.Wpf.Behaviors;assembly=SimulcastUtility.Wpf"
+        xmlns:controls="clr-namespace:SimulcastUtility.Wpf.Controls;assembly=SimulcastUtility.Wpf"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         Title="Simulcast Utility"
         Width="1200"
         Height="815"
@@ -14,5 +18,81 @@
         FontFamily="Segoe UI"
         SourceInitialized="Window_SourceInitialized"
         Foreground="{DynamicResource PrimaryTextBrush}">
-    <ContentControl x:Name="ViewHost" />
+    <Grid>
+        <ContentControl x:Name="ViewHost" />
+
+        <Grid Panel.ZIndex="200" Background="#99000000" Visibility="{Binding ModalVisibility}">
+            <Border Width="{Binding ModalWidth}"
+                    MaxWidth="900"
+                    MaxHeight="680"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Padding="24"
+                    Style="{DynamicResource CardBorderStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Style="{DynamicResource SectionTitleTextStyle}" Text="{Binding ModalTitle}" />
+                    <ScrollViewer Grid.Row="1" Margin="0,12,0,22" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding ModalMessage}" TextWrapping="Wrap" />
+                            <ContentPresenter Margin="0,8,0,0" Content="{Binding ModalContent}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                    <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal" Visibility="{Binding ConfirmationActionsVisibility}">
+                        <Button Margin="0,0,10,0" Command="{Binding CancelModalCommand}" Content="Cancel" Style="{DynamicResource SecondaryButtonStyle}" />
+                        <Button Command="{Binding ConfirmModalCommand}" Content="Confirm" Style="{DynamicResource PrimaryButtonStyle}" />
+                    </StackPanel>
+                    <Button Grid.Row="2" HorizontalAlignment="Right" Command="{Binding CancelModalCommand}" Content="Close" Style="{DynamicResource PrimaryButtonStyle}" Visibility="{Binding CloseActionVisibility}" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <ItemsControl Margin="0,0,20,20"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Bottom"
+                      Panel.ZIndex="300"
+                      ItemsSource="{Binding Notifications}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <controls:AnimatedStackPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Style="{DynamicResource NotificationBorderStyle}">
+                        <i:Interaction.Behaviors>
+                            <behaviors:NotificationAnimationBehavior />
+                        </i:Interaction.Behaviors>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <iconPacks:PackIconMaterial Style="{DynamicResource NotificationIconStyle}" />
+                            <StackPanel Grid.Column="1">
+                                <TextBlock FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" Text="{Binding Title}" TextWrapping="Wrap" />
+                                <TextBlock Margin="0,4,0,0" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding Message}" TextWrapping="Wrap" />
+                            </StackPanel>
+                            <Button Grid.Column="2"
+                                    Width="26"
+                                    Height="26"
+                                    Margin="10,-4,-5,0"
+                                    VerticalAlignment="Top"
+                                    Command="{Binding DataContext.DismissNotificationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}"
+                                    Style="{DynamicResource TransparentButtonStyle}"
+                                    ToolTip="Dismiss notification">
+                                <iconPacks:PackIconMaterial Width="13" Height="13" Foreground="{DynamicResource MutedTextBrush}" Kind="Close" />
+                            </Button>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
 </Window>

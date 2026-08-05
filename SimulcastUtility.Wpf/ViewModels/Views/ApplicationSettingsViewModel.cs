@@ -387,7 +387,7 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
                 using JsonDocument document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
                 string tagName = document.RootElement.GetProperty("tag_name").GetString() ?? string.Empty;
 
-                if (!TryParseVersion(tagName, out Version? latestVersion) || !TryParseVersion(CurrentVersion, out Version? currentVersion))
+                if (!TryParseVersion(tagName, out Version? latestVersion) || latestVersion is null || !TryParseVersion(CurrentVersion, out Version? currentVersion) || currentVersion is null)
                     throw new InvalidOperationException("GitHub returned an invalid release version.");
 
                 if (latestVersion > currentVersion)
