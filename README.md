@@ -22,7 +22,7 @@
 > [!WARNING]
 > **Work in progress**
 >
-> Simulcast Utility Suite is under active development and has not reached a stable public release. Features, the interface, and especially the plugin framework may evolve as the project grows.
+> Simulcast Utility Suite is under active development and although it has just reached a stable public release. Features, the interface, and especially the plugin framework may evolve as the project grows.
 
 ---
 
