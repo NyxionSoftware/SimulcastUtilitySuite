@@ -5,6 +5,7 @@ using SimulcastUtility.Wpf.ViewModels.Models;
 using SimulcastUtility.Wpf.ViewModels.Views;
 using SimulcastUtility.Wpf.Views;
 using SimulcastUtility.Wpf.Services;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -20,8 +21,9 @@ namespace SimulcastUtility
         private readonly MainViewModel _mainViewModel;
         private readonly IPluginManager _pluginManager;
         private readonly IPluginApplicationDispatcher _pluginApplicationDispatcher;
+        private readonly IServiceProvider _serviceProvider;
 
-        public MainWindow(MainView mainView, MainViewModel viewModel, IPluginManager pluginManager, IPluginApplicationDispatcher pluginApplicationDispatcher, IReceiverCommandManager receiverCommandManager, IReceiverManager receiverManager)
+        public MainWindow(MainView mainView, MainViewModel viewModel, IPluginManager pluginManager, IPluginApplicationDispatcher pluginApplicationDispatcher, IReceiverCommandManager receiverCommandManager, IReceiverManager receiverManager, IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _mainView = mainView;
@@ -30,6 +32,7 @@ namespace SimulcastUtility
             _receiverManager = receiverManager;
             _pluginManager = pluginManager;
             _pluginApplicationDispatcher = pluginApplicationDispatcher;
+            _serviceProvider = serviceProvider;
             viewModel.UpdateLoadedPluginCount(pluginManager.Plugins.Count);
             pluginManager.PluginsChanged += PluginsChanged;
             pluginApplicationDispatcher.CommandDispatched += PluginCommandDispatched;
@@ -38,7 +41,16 @@ namespace SimulcastUtility
             viewModel.ManagePluginsRequested += (_, _) => OpenPluginManager();
             viewModel.AddReceiverRequested += (_, _) => OpenReceiverManager(beginAdd: true);
             viewModel.EditReceiverRequested += receiver => OpenReceiverManager(receiver.Id);
+            viewModel.SettingsRequested += (_, _) => OpenSettings();
             ViewHost.Content = mainView;
+        }
+
+        private void OpenSettings()
+        {
+            ApplicationSettingsViewModel viewModel = _serviceProvider.GetRequiredService<ApplicationSettingsViewModel>();
+            ApplicationSettingsView view = new(viewModel);
+            viewModel.CloseRequested += (_, _) => NavigateTo(_mainView, slideFromRight: false);
+            NavigateTo(view, slideFromRight: true);
         }
 
         private void OpenPluginManager()

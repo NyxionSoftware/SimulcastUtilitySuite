@@ -13,14 +13,14 @@ namespace SimulcastUtility.Infrastructure.Repository
 {
     public sealed class JsonReceiverRepository : IReceiverRepository
     {
-        private readonly JsonReceiverRepositoryOptions _options;
+        private readonly IOptionsMonitor<JsonReceiverRepositoryOptions> _options;
         private readonly ILogger<JsonReceiverRepository> _logger;
         private readonly JsonSerializerOptions _serializerOptions;
         private readonly SemaphoreSlim _fileLock = new(1, 1);
 
-        public JsonReceiverRepository(IOptions<JsonReceiverRepositoryOptions> options, ILogger<JsonReceiverRepository> logger)
+        public JsonReceiverRepository(IOptionsMonitor<JsonReceiverRepositoryOptions> options, ILogger<JsonReceiverRepository> logger)
         {
-            _options = options.Value;
+            _options = options;
             _logger = logger;
 
             _serializerOptions = new JsonSerializerOptions
@@ -36,7 +36,7 @@ namespace SimulcastUtility.Infrastructure.Repository
 
             try
             {
-                string filePath = _options.GetFullPath();
+                string filePath = _options.CurrentValue.GetFullPath();
 
                 if (!File.Exists(filePath))
                 {
@@ -87,7 +87,7 @@ namespace SimulcastUtility.Infrastructure.Repository
             }
             catch (JsonException ex)
             {
-                string filePath = _options.GetFullPath();
+                string filePath = _options.CurrentValue.GetFullPath();
 
                 _logger.LogError(ex, "Receiver configuration file {FilePath} contains invalid JSON.", filePath);
 
@@ -109,7 +109,7 @@ namespace SimulcastUtility.Infrastructure.Repository
 
             try
             {
-                string filePath = _options.GetFullPath();
+                string filePath = _options.CurrentValue.GetFullPath();
                 string? directoryPath = Path.GetDirectoryName(filePath);
 
                 if (string.IsNullOrWhiteSpace(directoryPath))

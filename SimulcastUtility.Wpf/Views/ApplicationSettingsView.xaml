@@ -1,0 +1,150 @@
+<UserControl x:Class="SimulcastUtility.Wpf.Views.ApplicationSettingsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource PrimaryTextBrush}"
+        FontFamily="Segoe UI">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Padding="24,20" Background="{DynamicResource SidebarBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button Width="40"
+                        Height="40"
+                        Margin="0,0,14,0"
+                        Command="{Binding CloseCommand}"
+                        Style="{DynamicResource IconButtonStyle}"
+                        ToolTip="Back">
+                    <iconPacks:PackIconMaterial Width="18"
+                                                Height="18"
+                                                Kind="ArrowLeft" />
+                </Button>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Style="{DynamicResource PageTitleTextStyle}" Text="Application Settings" />
+                    <TextBlock Margin="0,4,0,0" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Text="Personal overrides for this Windows user." />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" Padding="24,20" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="18" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="18" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="18" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Grid.Column="0" Padding="20" Style="{DynamicResource CardBorderStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Width="18" Height="18" Margin="0,0,9,0" Foreground="{DynamicResource InfoBrush}" Kind="BellOutline" />
+                            <TextBlock Style="{DynamicResource SectionTitleTextStyle}" Text="Notifications" />
+                        </StackPanel>
+                        <TextBlock Margin="0,7,0,18" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" Text="Controls how long new notifications remain visible." TextWrapping="Wrap" />
+                        <TextBlock Style="{DynamicResource LabelTextStyle}" Text="NOTIFICATION DURATION (SECONDS)" />
+                        <TextBox Margin="0,7,0,0" MaxLength="3" Style="{DynamicResource ModernTextBoxStyle}" Text="{Binding NotificationDurationSeconds, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="2" Padding="20" Style="{DynamicResource CardBorderStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Width="18" Height="18" Margin="0,0,9,0" Foreground="{DynamicResource WarningBrush}" Kind="FileDocumentOutline" />
+                            <TextBlock Style="{DynamicResource SectionTitleTextStyle}" Text="Logging" />
+                        </StackPanel>
+                        <TextBlock Margin="0,7,0,18" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" Text="Retention applies when saved. Log level applies after restart." />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{DynamicResource LabelTextStyle}" Text="RETENTION DAYS" />
+                                <TextBox Margin="0,7,0,0" MaxLength="4" Style="{DynamicResource ModernTextBoxStyle}" Text="{Binding LogRetentionDays, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{DynamicResource LabelTextStyle}" Text="LOG LEVEL (RESTART REQUIRED)" />
+                                <ComboBox Height="38" Margin="0,15,0,0" ItemsSource="{Binding LogLevels}" SelectedItem="{Binding LogLevel}" Style="{DynamicResource ModernComboBoxStyle}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="2" Grid.Column="0" Padding="20" Style="{DynamicResource CardBorderStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Width="18" Height="18" Margin="0,0,9,0" Foreground="{DynamicResource AccentBrush}" Kind="PuzzleOutline" />
+                            <TextBlock Style="{DynamicResource SectionTitleTextStyle}" Text="Plugin Storage" />
+                        </StackPanel>
+                        <TextBlock Margin="0,7,0,18" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" Text="Used for future imports, refreshes, and plugin data operations." />
+                        <TextBlock Style="{DynamicResource LabelTextStyle}" Text="PLUGIN DIRECTORY" />
+                        <TextBox Margin="0,7,0,16" Style="{DynamicResource ModernTextBoxStyle}" Text="{Binding PluginDirectory, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Style="{DynamicResource LabelTextStyle}" Text="PLUGIN DATA DIRECTORY" />
+                        <TextBox Margin="0,7,0,0" Style="{DynamicResource ModernTextBoxStyle}" Text="{Binding PluginDataDirectory, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="2" Grid.Column="2" Padding="20" Style="{DynamicResource CardBorderStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Width="18" Height="18" Margin="0,0,9,0" Foreground="{DynamicResource SuccessBrush}" Kind="AccessPointNetwork" />
+                            <TextBlock Style="{DynamicResource SectionTitleTextStyle}" Text="Receiver Storage" />
+                        </StackPanel>
+                        <TextBlock Margin="0,7,0,18" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" Text="Existing receiver files are not moved automatically." />
+                        <TextBlock Style="{DynamicResource LabelTextStyle}" Text="RECEIVER DIRECTORY" />
+                        <TextBox Margin="0,7,0,16" Style="{DynamicResource ModernTextBoxStyle}" Text="{Binding ReceiverDirectory, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Style="{DynamicResource LabelTextStyle}" Text="RECEIVER FILE NAME" />
+                        <TextBox Margin="0,7,0,0" Style="{DynamicResource ModernTextBoxStyle}" Text="{Binding ReceiverFileName, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="4" Grid.ColumnSpan="3" Padding="20" Style="{DynamicResource CardBorderStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Width="18" Height="18" Margin="0,0,9,0" Foreground="{DynamicResource InfoBrush}" Kind="AccountOutline" />
+                            <TextBlock Style="{DynamicResource SectionTitleTextStyle}" Text="Configuration Scope" />
+                        </StackPanel>
+                        <TextBlock Margin="0,8,0,16" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Text="User settings override workstation defaults. Workstation settings can only be saved while running as administrator." TextWrapping="Wrap" />
+                        <TextBlock Style="{DynamicResource LabelTextStyle}" Text="SAVE SETTINGS FOR" />
+                        <ComboBox Height="38" Margin="0,7,0,0" VerticalContentAlignment="Center" ItemsSource="{Binding ConfigurationScopes}" SelectedItem="{Binding SelectedConfigurationScope}" Style="{DynamicResource ModernComboBoxStyle}" />
+                        <TextBlock Margin="0,10,0,0" FontSize="10" Foreground="{DynamicResource MutedTextBrush}" Text="Without administrator access, User is the only available scope. Administrators may still edit the appsettings.json beside the application manually." TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Padding="20,16" Background="{DynamicResource SidebarBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock FontSize="11" Foreground="{DynamicResource ErrorBrush}" Text="{Binding StatusMessage}" TextWrapping="Wrap" Visibility="{Binding ErrorStatusVisibility}" />
+                    <TextBlock FontSize="11" Foreground="{DynamicResource SuccessBrush}" Text="{Binding StatusMessage}" TextWrapping="Wrap" Visibility="{Binding SuccessStatusVisibility}" />
+                </StackPanel>
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button Margin="0,0,10,0" Command="{Binding CloseCommand}" Content="Back" Style="{DynamicResource SecondaryButtonStyle}" />
+                    <Button Command="{Binding SaveCommand}" Style="{DynamicResource PrimaryButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconMaterial Width="15" Height="15" Margin="0,0,8,0" Kind="ContentSave" />
+                            <TextBlock Text="Save Settings" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

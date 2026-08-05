@@ -91,9 +91,18 @@
                             <iconPacks:PackIconMaterial Width="15"
                                                       Height="15"
                                                       Margin="0,0,8,0"
-                                                      Kind="Cog" />
+                                                      Kind="AccessPointNetwork" />
                             <TextBlock Text="Manage Receivers" />
                         </StackPanel>
+                    </Button>
+
+                    <Button Width="38"
+                            Height="38"
+                            Margin="10,0,0,0"
+                            Command="{Binding SettingsCommand}"
+                            Style="{DynamicResource IconButtonStyle}"
+                            ToolTip="Application settings">
+                        <iconPacks:PackIconMaterial Width="18" Height="18" Kind="Cog" />
                     </Button>
                 </StackPanel>
             </Grid>
@@ -243,7 +252,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Style="{DynamicResource PageTitleTextStyle}"
-                                       Text="{Binding SelectedReceiver.Name, TargetNullValue=No Receiver Selected}" />
+                                       Text="{Binding SelectedReceiver.Name, TargetNullValue=No Receiver Selected, FallbackValue=No Receiver Selected}" />
                             <StackPanel Margin="0,7,0,0"
                                         Orientation="Horizontal">
                                 <Border DataContext="{Binding SelectedReceiver}"
@@ -254,7 +263,7 @@
                                         <TextBlock FontSize="10"
                                                    FontWeight="SemiBold"
                                                    Foreground="{Binding RelativeSource={RelativeSource AncestorType=Border}, Path=BorderBrush}"
-                                                   Text="{Binding StatusText, TargetNullValue=Offline}" />
+                                                   Text="{Binding StatusText, TargetNullValue=Unknown, FallbackValue=Unknown}" />
                                     </StackPanel>
                                 </Border>
                                 <Border Margin="7,0,0,0"
@@ -266,7 +275,7 @@
                                         <TextBlock FontSize="10"
                                                    FontWeight="SemiBold"
                                                    Foreground="{Binding RelativeSource={RelativeSource AncestorType=Border}, Path=BorderBrush}"
-                                                   Text="{Binding ActivityText, TargetNullValue=Activity unknown}" />
+                                                   Text="{Binding ActivityText, TargetNullValue=Unknown, FallbackValue=Unknown}" />
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
@@ -274,7 +283,7 @@
                                        VerticalAlignment="Center"
                                        FontSize="11"
                                        Foreground="{DynamicResource MutedTextBrush}"
-                                       Text="{Binding SelectedReceiver.LastSeenUtc, StringFormat=Last seen {0:g}, TargetNullValue=Waiting...}" />
+                                       Text="{Binding SelectedReceiver.LastSeenUtc, StringFormat=Last seen {0:g}, TargetNullValue=Waiting..., FallbackValue=Waiting...}" />
                         </StackPanel>
                         <Button Grid.Column="1"
                                 VerticalAlignment="Center"
@@ -318,21 +327,21 @@
                                                Text="RECEIVER NAME" />
                                     <TextBlock Margin="0,6,0,0"
                                                Style="{DynamicResource ValueTextStyle}"
-                                               Text="{Binding SelectedReceiver.Name, TargetNullValue=—}" />
+                                               Text="{Binding SelectedReceiver.Name, TargetNullValue=—, FallbackValue=—}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Style="{DynamicResource LabelTextStyle}"
                                                Text="RECEIVER ID" />
                                     <TextBlock Margin="0,6,0,0"
                                                Style="{DynamicResource ValueTextStyle}"
-                                               Text="{Binding SelectedReceiver.ReceiverId, TargetNullValue=—}" />
+                                               Text="{Binding SelectedReceiver.ReceiverId, TargetNullValue=—, FallbackValue=—}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Style="{DynamicResource LabelTextStyle}"
                                                Text="IP ADDRESS" />
                                     <TextBlock Margin="0,6,0,0"
                                                Style="{DynamicResource ValueTextStyle}"
-                                               Text="{Binding SelectedReceiver.IpAddress, TargetNullValue=—}" />
+                                               Text="{Binding SelectedReceiver.IpAddress, TargetNullValue=—, FallbackValue=—}" />
                                 </StackPanel>
                             </Grid>
                             <Grid Grid.Row="2"
@@ -347,21 +356,21 @@
                                                Text="APK VERSION" />
                                     <TextBlock Margin="0,6,0,0"
                                                Style="{DynamicResource ValueTextStyle}"
-                                               Text="{Binding SelectedReceiver.ApkVersion, TargetNullValue=—}" />
+                                               Text="{Binding SelectedReceiver.ApkVersion, TargetNullValue=—, FallbackValue=—}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Style="{DynamicResource LabelTextStyle}"
                                                Text="APK VERSION DATE" />
                                     <TextBlock Margin="0,6,0,0"
                                                Style="{DynamicResource ValueTextStyle}"
-                                               Text="{Binding SelectedReceiver.VersionDate, StringFormat={}{0:MMM d\, yyyy}, TargetNullValue=—}" />
+                                               Text="{Binding SelectedReceiver.VersionDate, StringFormat={}{0:MMM d\, yyyy}, TargetNullValue=—, FallbackValue=—}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Style="{DynamicResource LabelTextStyle}"
                                                Text="MAC ADDRESS" />
                                     <TextBlock Margin="0,6,0,0"
                                                Style="{DynamicResource ValueTextStyle}"
-                                               Text="{Binding SelectedReceiver.EthernetMac, TargetNullValue=—}" />
+                                               Text="{Binding SelectedReceiver.EthernetMac, TargetNullValue=—, FallbackValue=—}" />
                                 </StackPanel>
                             </Grid>
                         </Grid>
@@ -402,7 +411,7 @@
                                                    FontSize="24"
                                                    FontWeight="Bold"
                                                    Foreground="{DynamicResource AccentBrush}"
-                                                   Text="{Binding SelectedReceiver.Channel, TargetNullValue=—}" />
+                                                   Text="{Binding SelectedReceiver.Channel, TargetNullValue=—, FallbackValue=—}" />
                                     </Border>
                                     <StackPanel Grid.Column="1"
                                                 Margin="18,0,0,0"
@@ -411,15 +420,15 @@
                                                    FontSize="17"
                                                    FontWeight="SemiBold"
                                                    Foreground="{DynamicResource PrimaryTextBrush}"
-                                                   Text="{Binding SelectedReceiver.ChannelName, TargetNullValue=No channel information}"
+                                                   Text="{Binding SelectedReceiver.ChannelName, TargetNullValue=No channel information, FallbackValue=No channel information}"
                                                    TextTrimming="CharacterEllipsis" />
                                         <TextBlock x:Name="NowPlayingEventTime"
                                                    Margin="0,7,0,0"
                                                    FontSize="11"
                                                    Foreground="{DynamicResource SecondaryTextBrush}">
-                                            <Run Text="{Binding SelectedReceiver.ChannelStartTime, Mode=OneWay, StringFormat={}{0:h:mm tt}, TargetNullValue=—}" />
+                                            <Run Text="{Binding SelectedReceiver.ChannelStartTime, Mode=OneWay, StringFormat={}{0:h:mm tt}, TargetNullValue=—, FallbackValue=—}" />
                                             <Run Text=" – " />
-                                            <Run Text="{Binding SelectedReceiver.ChannelEndTime, Mode=OneWay, StringFormat={}{0:h:mm tt}, TargetNullValue=—}" />
+                                            <Run Text="{Binding SelectedReceiver.ChannelEndTime, Mode=OneWay, StringFormat={}{0:h:mm tt}, TargetNullValue=—, FallbackValue=—}" />
                                         </TextBlock>
                                     </StackPanel>
                                 </Grid>
@@ -431,9 +440,9 @@
                                              Background="{DynamicResource BorderBrush}"
                                              BorderThickness="0"
                                              Foreground="{DynamicResource AccentBrush}"
-                                             IsIndeterminate="{Binding SelectedReceiver.IsLoading}"
+                                             IsIndeterminate="{Binding SelectedReceiver.IsLoading, FallbackValue=False}"
                                              Maximum="100"
-                                             Value="{Binding SelectedReceiver.ChannelProgress, Mode=OneWay}" />
+                                             Value="{Binding SelectedReceiver.ChannelProgress, Mode=OneWay, FallbackValue=0}" />
                                 <StackPanel x:Name="NowPlayingOptionsHost"
                                             Grid.Row="3" />
                             </Grid>

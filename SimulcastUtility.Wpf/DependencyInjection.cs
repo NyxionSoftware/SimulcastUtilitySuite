@@ -12,6 +12,8 @@ namespace SimulcastUtility.Wpf
         {
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<MainView>();
+            services.AddTransient<ApplicationSettingsViewModel>();
+            services.AddTransient<ApplicationSettingsView>();
             services.AddSingleton<IPluginThemeManager, WpfPluginThemeManager>();
             services.AddSingleton<IPluginUiManager, WpfPluginUiManager>();
 

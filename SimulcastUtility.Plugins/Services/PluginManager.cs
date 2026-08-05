@@ -14,7 +14,7 @@ namespace SimulcastUtility.Plugins.Services
 {
     public sealed class PluginManager : IPluginManager
     {
-        private readonly PluginOptions _options;
+        private readonly IOptionsMonitor<PluginOptions> _options;
         private readonly ILogger<PluginManager> _logger;
         private readonly IReceiverRepository _receiverRepository;
         private readonly IReceiverManager _receiverManager;
@@ -26,9 +26,9 @@ namespace SimulcastUtility.Plugins.Services
         private readonly SemaphoreSlim _stateLock = new(1, 1);
         private readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = true };
 
-        public PluginManager(IOptions<PluginOptions> options, ILogger<PluginManager> logger, IReceiverRepository receiverRepository, IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IPluginApplicationDispatcher applicationDispatcher, IPluginThemeManager pluginThemeManager, IPluginUiManager pluginUiManager)
+        public PluginManager(IOptionsMonitor<PluginOptions> options, ILogger<PluginManager> logger, IReceiverRepository receiverRepository, IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IPluginApplicationDispatcher applicationDispatcher, IPluginThemeManager pluginThemeManager, IPluginUiManager pluginUiManager)
         {
-            _options = options.Value;
+            _options = options;
             _logger = logger;
             _pluginThemeManager = pluginThemeManager;
             _pluginUiManager = pluginUiManager;
@@ -40,7 +40,7 @@ namespace SimulcastUtility.Plugins.Services
 
         public IReadOnlyList<LoadedPlugin> Plugins => _runtimes.Select(runtime => runtime.Model).ToArray();
 
-        public string PluginDirectory => _options.Directory;
+        public string PluginDirectory => _options.CurrentValue.Directory;
 
         public event EventHandler? PluginsChanged;
 
@@ -53,10 +53,11 @@ namespace SimulcastUtility.Plugins.Services
                 if (_runtimes.Count > 0)
                     return;
 
-                Directory.CreateDirectory(_options.Directory);
+                Directory.CreateDirectory(_options.CurrentValue.Directory);
+                Directory.CreateDirectory(_options.CurrentValue.DataDirectory);
                 HashSet<Guid> disabledPlugins = await LoadDisabledPluginIdentifiersAsync(cancellationToken);
 
-                foreach (string assemblyPath in EnumeratePluginAssemblyCandidates(_options.Directory))
+                foreach (string assemblyPath in EnumeratePluginAssemblyCandidates(_options.CurrentValue.Directory))
                     await TryLoadAssemblyAsync(assemblyPath, disabledPlugins, applicationArguments, cancellationToken);
             }
             finally
@@ -161,11 +162,12 @@ namespace SimulcastUtility.Plugins.Services
 
             try
             {
-                Directory.CreateDirectory(_options.Directory);
+                Directory.CreateDirectory(_options.CurrentValue.Directory);
+                Directory.CreateDirectory(_options.CurrentValue.DataDirectory);
                 HashSet<Guid> disabledPlugins = await LoadDisabledPluginIdentifiersAsync(cancellationToken);
                 HashSet<string> loadedAssemblyPaths = _runtimes.Select(runtime => Path.GetFullPath(runtime.Model.AssemblyPath)).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-                foreach (string assemblyPath in EnumeratePluginAssemblyCandidates(_options.Directory))
+                foreach (string assemblyPath in EnumeratePluginAssemblyCandidates(_options.CurrentValue.Directory))
                 {
                     if (loadedAssemblyPaths.Contains(Path.GetFullPath(assemblyPath)))
                         continue;
@@ -181,6 +183,69 @@ namespace SimulcastUtility.Plugins.Services
             int loadedPluginCount = _runtimes.Count - pluginCountBeforeRefresh;
             PluginsChanged?.Invoke(this, EventArgs.Empty);
             return loadedPluginCount;
+        }
+
+        public async Task ReloadAsync(CancellationToken cancellationToken = default)
+        {
+            IReadOnlyList<WeakReference> loadContextReferences = await UnloadAllPluginsForReloadAsync(cancellationToken);
+            await WaitForUnloadAsync(loadContextReferences, cancellationToken);
+            Directory.CreateDirectory(_options.CurrentValue.Directory);
+            Directory.CreateDirectory(_options.CurrentValue.DataDirectory);
+            await LoadAsync(Array.Empty<string>(), cancellationToken);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private async Task<IReadOnlyList<WeakReference>> UnloadAllPluginsForReloadAsync(CancellationToken cancellationToken)
+        {
+            await _stateLock.WaitAsync(cancellationToken);
+
+            try
+            {
+                PluginRuntime[] runtimes = _runtimes.ToArray();
+                PluginLoadContext[] loadContexts = runtimes.Select(runtime => runtime.LoadContext).Distinct().ToArray();
+                List<WeakReference> loadContextReferences = loadContexts.Select(loadContext => new WeakReference(loadContext, trackResurrection: false)).ToList();
+
+                foreach (PluginRuntime runtime in runtimes)
+                {
+                    try
+                    {
+                        if (runtime.Model.IsEnabled)
+                            await runtime.Plugin.DisableAsync(cancellationToken);
+
+                        if (runtime.Plugin is IAsyncDisposable asyncDisposable)
+                            await asyncDisposable.DisposeAsync();
+                        else if (runtime.Plugin is IDisposable disposable)
+                            disposable.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Plugin {PluginName} reported an error while being unloaded for a storage configuration change.", runtime.Model.Info.Name);
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            await _pluginThemeManager.RemoveResourceDictionaryAsync(runtime.Model.Info.PluginIdentifier, cancellationToken);
+                            await _pluginUiManager.RemovePluginUiAsync(runtime.Model.Info.PluginIdentifier, cancellationToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Plugin {PluginName} UI resources could not be fully removed during reload.", runtime.Model.Info.Name);
+                        }
+                    }
+                }
+
+                _runtimes.Clear();
+
+                foreach (PluginLoadContext loadContext in loadContexts)
+                    loadContext.Unload();
+
+                return loadContextReferences;
+            }
+            finally
+            {
+                _stateLock.Release();
+            }
         }
 
         public async Task<PluginImportResult> ImportAsync(IReadOnlyList<string> sourcePaths, CancellationToken cancellationToken = default)
@@ -201,7 +266,7 @@ namespace SimulcastUtility.Plugins.Services
             if (!isZipImport && fullSourcePaths.Any(path => !string.Equals(Path.GetExtension(path), ".dll", StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidDataException("Select either one ZIP archive or one or more DLL files.");
 
-            Directory.CreateDirectory(_options.Directory);
+            Directory.CreateDirectory(_options.CurrentValue.Directory);
             string importName = MakeSafeDirectoryName(Path.GetFileNameWithoutExtension(fullSourcePaths[0]));
             string destinationDirectory = GetAvailableDestinationDirectory(importName);
             Directory.CreateDirectory(destinationDirectory);
@@ -421,7 +486,7 @@ namespace SimulcastUtility.Plugins.Services
             if (runtime.IsInitialized)
                 return;
 
-            IPluginDataStore dataStore = new PluginDataStore(_options.DataDirectory, runtime.Model.Info.PluginIdentifier);
+            IPluginDataStore dataStore = new PluginDataStore(_options.CurrentValue.DataDirectory, runtime.Model.Info.PluginIdentifier);
             string installationDirectory = Path.GetDirectoryName(runtime.Model.AssemblyPath) ?? throw new InvalidOperationException("The plugin installation directory is unavailable.");
             IPluginContext pluginContext = new PluginContext(installationDirectory, _receiverRepository, _receiverManager, _receiverCommandManager, _applicationDispatcher, _pluginThemeManager, _pluginUiManager, dataStore);
             await runtime.Plugin.InitializeAsync(pluginContext, cancellationToken);
@@ -480,7 +545,7 @@ namespace SimulcastUtility.Plugins.Services
 
         private async Task<HashSet<Guid>> LoadDisabledPluginIdentifiersAsync(CancellationToken cancellationToken)
         {
-            string stateFilePath = _options.GetStateFilePath();
+            string stateFilePath = _options.CurrentValue.GetStateFilePath();
 
             if (!File.Exists(stateFilePath))
                 return new HashSet<Guid>();
@@ -492,9 +557,9 @@ namespace SimulcastUtility.Plugins.Services
 
         private async Task SaveDisabledPluginIdentifiersAsync(CancellationToken cancellationToken)
         {
-            Directory.CreateDirectory(_options.Directory);
+            Directory.CreateDirectory(_options.CurrentValue.Directory);
             PluginState state = new() { DisabledPluginIdentifiers = _runtimes.Where(runtime => !runtime.Model.IsEnabled).Select(runtime => runtime.Model.Info.PluginIdentifier).ToList() };
-            await using FileStream stream = new(_options.GetStateFilePath(), FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
+            await using FileStream stream = new(_options.CurrentValue.GetStateFilePath(), FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
             await JsonSerializer.SerializeAsync(stream, state, _serializerOptions, cancellationToken);
         }
 
@@ -541,7 +606,7 @@ namespace SimulcastUtility.Plugins.Services
 
         private string GetPluginDeletionTarget(string assemblyPath)
         {
-            string pluginRoot = Path.GetFullPath(_options.Directory).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+            string pluginRoot = Path.GetFullPath(_options.CurrentValue.Directory).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
             string fullAssemblyPath = Path.GetFullPath(assemblyPath);
 
             if (!fullAssemblyPath.StartsWith(pluginRoot, StringComparison.OrdinalIgnoreCase))
@@ -571,12 +636,12 @@ namespace SimulcastUtility.Plugins.Services
 
         private string GetAvailableDestinationDirectory(string importName)
         {
-            string destinationDirectory = Path.Combine(_options.Directory, importName);
+            string destinationDirectory = Path.Combine(_options.CurrentValue.Directory, importName);
             int suffix = 2;
 
             while (Directory.Exists(destinationDirectory))
             {
-                destinationDirectory = Path.Combine(_options.Directory, $"{importName} ({suffix})");
+                destinationDirectory = Path.Combine(_options.CurrentValue.Directory, $"{importName} ({suffix})");
                 suffix++;
             }
 

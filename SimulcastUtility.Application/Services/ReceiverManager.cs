@@ -54,6 +54,21 @@ namespace SimulcastUtility.Application.Services
             await Task.CompletedTask;
         }
 
+        public async Task ReloadAsync(CancellationToken cancellationToken = default)
+        {
+            EnsureInitialized();
+            Guid? selectedReceiverId = SelectedReceiver?.Id;
+            IReadOnlyList<Receiver> receivers = await _repository.LoadAsync(cancellationToken);
+            _receivers.Clear();
+
+            foreach (Receiver receiver in receivers)
+                _receivers.Add(receiver);
+
+            Receiver? selectedReceiver = selectedReceiverId is { } receiverId ? GetReceiver(receiverId) : null;
+            SetSelectedReceiver(selectedReceiver ?? _receivers.FirstOrDefault());
+            _logger.LogInformation("Receiver manager reloaded {ReceiverCount} receivers from storage.", _receivers.Count);
+        }
+
         public Receiver? GetReceiver(Guid receiverId) => _receivers.FirstOrDefault(receiver => receiver.Id == receiverId);
 
         public void SelectReceiver(Guid? receiverId)

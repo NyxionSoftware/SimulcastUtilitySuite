@@ -11,6 +11,7 @@
     <ProjectReference Include="..\SimulcastUtility.Application\SimulcastUtility.Application.csproj" />
     <ProjectReference Include="..\SimulcastUtility.Configuration\SimulcastUtility.Configuration.csproj" />
     <ProjectReference Include="..\SimulcastUtility.Core\SimulcastUtility.Core.csproj" />
+    <ProjectReference Include="..\SimulcastUtility.Infrastructure\SimulcastUtility.Infrastructure.csproj" />
     <ProjectReference Include="..\SimulcastUtility.Logging\SimulcastUtility.Logging.csproj" />
     <ProjectReference Include="..\SimulcastUtility.Plugins\SimulcastUtility.Plugins.csproj" />
   </ItemGroup>

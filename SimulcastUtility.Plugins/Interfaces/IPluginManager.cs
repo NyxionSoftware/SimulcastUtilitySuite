@@ -14,6 +14,8 @@ namespace SimulcastUtility.Plugins.Interfaces
 
         Task<int> RefreshAsync(CancellationToken cancellationToken = default);
 
+        Task ReloadAsync(CancellationToken cancellationToken = default);
+
         Task<PluginImportResult> ImportAsync(IReadOnlyList<string> sourcePaths, CancellationToken cancellationToken = default);
 
         Task DeleteAsync(Guid pluginIdentifier, CancellationToken cancellationToken = default);

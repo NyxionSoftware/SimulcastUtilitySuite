@@ -71,6 +71,8 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
 
         public IRelayCommand ManagePluginsCommand { get; }
 
+        public IRelayCommand SettingsCommand { get; }
+
         public IRelayCommand<NotificationViewModel> DismissNotificationCommand { get; }
 
         public event EventHandler? AddReceiverRequested;
@@ -82,6 +84,8 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
         public event Action<ReceiverViewModel>? EditReceiverRequested;
 
         public event EventHandler? ManagePluginsRequested;
+
+        public event EventHandler? SettingsRequested;
 
         public ReceiverViewModel? SelectedReceiver
         {
@@ -209,6 +213,7 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
             VirtualRemoteCommand = new RelayCommand(() => VirtualRemoteRequested?.Invoke(SelectedReceiver!), () => SelectedReceiver?.CanExecuteActions == true);
             EditReceiverCommand = new RelayCommand(() => EditReceiverRequested?.Invoke(SelectedReceiver!), () => HasSelectedReceiver);
             ManagePluginsCommand = new RelayCommand(() => ManagePluginsRequested?.Invoke(this, EventArgs.Empty));
+            SettingsCommand = new RelayCommand(() => SettingsRequested?.Invoke(this, EventArgs.Empty));
             DismissNotificationCommand = new RelayCommand<NotificationViewModel>(DismissNotification);
 
             if (receiverManager.Receivers is INotifyCollectionChanged collectionChanged)

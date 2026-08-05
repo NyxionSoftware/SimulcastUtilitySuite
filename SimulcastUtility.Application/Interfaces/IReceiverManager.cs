@@ -27,6 +27,8 @@ namespace SimulcastUtility.Application.Interfaces
 
         Task MoveReceiverAsync(Guid receiverId, int newIndex, CancellationToken cancellationToken = default);
 
+        Task ReloadAsync(CancellationToken cancellationToken = default);
+
         void SelectReceiver(Guid? receiverId);
 
     }

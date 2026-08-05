@@ -9,6 +9,7 @@ using SimulcastUtility.Application.Requests;
 using SimulcastUtility.Application.Services;
 using SimulcastUtility.Infrastructure;
 using SimulcastUtility.Configuration.Models;
+using SimulcastUtility.Configuration;
 using SimulcastUtility.Plugins;
 using SimulcastUtility.Plugins.Interfaces;
 using SimulcastUtility.Wpf;
@@ -86,6 +87,7 @@ namespace SimulcastUtility
         private static void ConfigureConfiguration(ConfigurationManager configuration)
         {
             configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            configuration.AddJsonFile(ApplicationConfigurationPaths.GetUserSettingsFilePath(), optional: true, reloadOnChange: true);
         }
 
         private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
@@ -96,6 +98,7 @@ namespace SimulcastUtility
             services.AddSimulcastPlugins(configuration);
             services.AddSimulcastWpf();
             services.Configure<NotificationOptions>(configuration.GetSection(NotificationOptions.SectionName));
+            services.Configure<LoggingOptions>(configuration.GetSection(LoggingOptions.SectionName));
         }
 
         private static void DeleteExpiredLogs(string logDirectory, int retentionDays)
