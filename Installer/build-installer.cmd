@@ -17,6 +17,8 @@ if not defined PRODUCT_VERSION (
 )
 
 set "ISCC_DEFINES=/DProductVersion=%PRODUCT_VERSION%"
+set "INSTALLER_FILE=SimulcastUtilitySuite-v%PRODUCT_VERSION%-win-x64-setup.exe"
+set "PORTABLE_FILE=SimulcastUtilitySuite-v%PRODUCT_VERSION%-win-x64-portable.zip"
 echo Building Simulcast Utility %PRODUCT_VERSION%...
 
 if not exist "%ISCC%" (
@@ -36,6 +38,8 @@ if errorlevel 1 exit /b %errorlevel%
 echo Cleaning previous installer payloads...
 if exist "%INSTALLER_ROOT%Payload\Application" rmdir /s /q "%INSTALLER_ROOT%Payload\Application"
 if exist "%INSTALLER_ROOT%Output\SimulcastUtilitySetup.exe" del /q "%INSTALLER_ROOT%Output\SimulcastUtilitySetup.exe"
+if exist "%INSTALLER_ROOT%Output\%INSTALLER_FILE%" del /q "%INSTALLER_ROOT%Output\%INSTALLER_FILE%"
+if exist "%INSTALLER_ROOT%Output\%PORTABLE_FILE%" del /q "%INSTALLER_ROOT%Output\%PORTABLE_FILE%"
 if exist "%INSTALLER_ROOT%Output\Packages\SimulcastUtilityUserSetup.exe" del /q "%INSTALLER_ROOT%Output\Packages\SimulcastUtilityUserSetup.exe"
 if exist "%INSTALLER_ROOT%Output\Packages\SimulcastUtilityWorkstationSetup.exe" del /q "%INSTALLER_ROOT%Output\Packages\SimulcastUtilityWorkstationSetup.exe"
 
@@ -55,8 +59,13 @@ echo Building the single Simulcast Utility installer...
 "%ISCC%" /Qp %ISCC_DEFINES% "%INSTALLER_ROOT%Inno\SimulcastUtilitySetup.iss"
 if errorlevel 1 exit /b %errorlevel%
 
+echo Creating portable application archive...
+powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Compress-Archive -Path '%INSTALLER_ROOT%Payload\Application\*' -DestinationPath '%INSTALLER_ROOT%Output\%PORTABLE_FILE%' -CompressionLevel Optimal -Force"
+if errorlevel 1 exit /b %errorlevel%
+
 echo.
-echo Installer created at:
-echo %INSTALLER_ROOT%Output\SimulcastUtilitySetup.exe
+echo Release artifacts created at:
+echo %INSTALLER_ROOT%Output\%INSTALLER_FILE%
+echo %INSTALLER_ROOT%Output\%PORTABLE_FILE%
 
 endlocal
