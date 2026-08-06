@@ -1,4 +1,5 @@
 using SimulcastUtility.Plugins.Models;
+using System.Windows;
 
 namespace SimulcastUtility.Plugins.Interfaces
 {
@@ -23,6 +24,8 @@ namespace SimulcastUtility.Plugins.Interfaces
         Task SetEnabledAsync(Guid pluginIdentifier, bool isEnabled, CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<PluginSettingDescriptor>> GetSettingsAsync(Guid pluginIdentifier, CancellationToken cancellationToken = default);
+
+        Task<FrameworkElement?> CreateSettingPreviewAsync(Guid pluginIdentifier, string settingKey, string selectedValue, CancellationToken cancellationToken = default);
 
         Task SetSettingAsync(Guid pluginIdentifier, string settingKey, System.Text.Json.JsonElement value, CancellationToken cancellationToken = default);
 

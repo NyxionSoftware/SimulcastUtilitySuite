@@ -8,6 +8,7 @@ namespace SimulcastUtility.Plugins.Models
         Checkbox,
         MultiCheckbox,
         Dropdown,
-        SideBySideList
+        SideBySideList,
+        ThemeSelection
     }
 }

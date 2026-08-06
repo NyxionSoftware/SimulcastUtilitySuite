@@ -258,6 +258,28 @@
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
+                                            <Border Margin="0,12,0,0"
+                                                    Padding="12"
+                                                    Background="{DynamicResource CardBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="8"
+                                                    Visibility="{Binding ThemeSelectionVisibility}">
+                                                <StackPanel>
+                                                    <TextBlock Margin="0,0,0,9"
+                                                               FontSize="10"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource MutedTextBrush}"
+                                                               Text="THEME PREVIEW" />
+                                                    <ContentControl HorizontalContentAlignment="Stretch"
+                                                                    Content="{Binding PreviewContent}" />
+                                                    <TextBlock Foreground="{DynamicResource ErrorBrush}"
+                                                               FontSize="11"
+                                                               Text="{Binding PreviewError}"
+                                                               TextWrapping="Wrap"
+                                                               Visibility="{Binding PreviewErrorVisibility}" />
+                                                </StackPanel>
+                                            </Border>
                                             <ItemsControl ItemsSource="{Binding Options}" Visibility="{Binding MultiCheckboxVisibility}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>

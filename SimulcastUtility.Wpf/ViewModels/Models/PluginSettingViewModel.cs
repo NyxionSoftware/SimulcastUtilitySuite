@@ -7,14 +7,19 @@ using System.Windows;
 
 namespace SimulcastUtility.Wpf.ViewModels.Models
 {
-    public sealed class PluginSettingViewModel : ObservableObject
+    public sealed class PluginSettingViewModel : ObservableObject, IDisposable
     {
+        private readonly Func<string, CancellationToken, Task<FrameworkElement?>>? _previewFactory;
         private bool _booleanValue;
         private string _textValue = string.Empty;
         private PluginSettingOptionViewModel? _selectedOption;
+        private FrameworkElement? _previewContent;
+        private string _previewError = string.Empty;
+        private CancellationTokenSource? _previewCancellation;
 
-        public PluginSettingViewModel(PluginSettingDescriptor descriptor)
+        public PluginSettingViewModel(PluginSettingDescriptor descriptor, Func<string, CancellationToken, Task<FrameworkElement?>>? previewFactory = null)
         {
+            _previewFactory = previewFactory;
             Key = descriptor.Key;
             Name = descriptor.Name;
             Description = descriptor.Description;
@@ -30,6 +35,9 @@ namespace SimulcastUtility.Wpf.ViewModels.Models
             AvailableOptions = new ObservableCollection<PluginSettingOptionViewModel>(Options.Where(option => !option.IsSelected));
             SelectedOptions = new ObservableCollection<PluginSettingOptionViewModel>(Options.Where(option => option.IsSelected));
             _selectedOption = Options.FirstOrDefault(option => option.Value == _textValue);
+
+            if (ControlType == PluginSettingControlType.ThemeSelection && _selectedOption is not null)
+                _ = LoadPreviewAsync(_selectedOption.Value);
         }
 
         public string Key { get; }
@@ -58,7 +66,9 @@ namespace SimulcastUtility.Wpf.ViewModels.Models
 
         public Visibility NumericVisibility => ControlType == PluginSettingControlType.Numeric ? Visibility.Visible : Visibility.Collapsed;
 
-        public Visibility DropdownVisibility => ControlType == PluginSettingControlType.Dropdown ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility DropdownVisibility => ControlType is PluginSettingControlType.Dropdown or PluginSettingControlType.ThemeSelection ? Visibility.Visible : Visibility.Collapsed;
+
+        public Visibility ThemeSelectionVisibility => ControlType == PluginSettingControlType.ThemeSelection ? Visibility.Visible : Visibility.Collapsed;
 
         public Visibility MultiCheckboxVisibility => ControlType == PluginSettingControlType.MultiCheckbox ? Visibility.Visible : Visibility.Collapsed;
 
@@ -79,8 +89,32 @@ namespace SimulcastUtility.Wpf.ViewModels.Models
         public PluginSettingOptionViewModel? SelectedOption
         {
             get => _selectedOption;
-            set => SetProperty(ref _selectedOption, value);
+            set
+            {
+                if (!SetProperty(ref _selectedOption, value) || ControlType != PluginSettingControlType.ThemeSelection || value is null)
+                    return;
+
+                _ = LoadPreviewAsync(value.Value);
+            }
         }
+
+        public FrameworkElement? PreviewContent
+        {
+            get => _previewContent;
+            private set => SetProperty(ref _previewContent, value);
+        }
+
+        public string PreviewError
+        {
+            get => _previewError;
+            private set
+            {
+                if (SetProperty(ref _previewError, value))
+                    OnPropertyChanged(nameof(PreviewErrorVisibility));
+            }
+        }
+
+        public Visibility PreviewErrorVisibility => string.IsNullOrWhiteSpace(PreviewError) ? Visibility.Collapsed : Visibility.Visible;
 
         public JsonElement CreateValue()
         {
@@ -92,8 +126,50 @@ namespace SimulcastUtility.Wpf.ViewModels.Models
                 PluginSettingControlType.MultiCheckbox => JsonSerializer.SerializeToElement(Options.Where(option => option.IsSelected).Select(option => option.Value).ToArray()),
                 PluginSettingControlType.SideBySideList => JsonSerializer.SerializeToElement(SelectedOptions.Select(option => option.Value).ToArray()),
                 PluginSettingControlType.Dropdown => JsonSerializer.SerializeToElement(SelectedOption?.Value ?? string.Empty),
+                PluginSettingControlType.ThemeSelection => JsonSerializer.SerializeToElement(SelectedOption?.Value ?? string.Empty),
                 _ => JsonSerializer.SerializeToElement(TextValue)
             };
+        }
+
+        public void Dispose()
+        {
+            _previewCancellation?.Cancel();
+            _previewCancellation?.Dispose();
+            _previewCancellation = null;
+            PreviewContent = null;
+        }
+
+        private async Task LoadPreviewAsync(string selectedValue)
+        {
+            _previewCancellation?.Cancel();
+            _previewCancellation?.Dispose();
+            _previewCancellation = new CancellationTokenSource();
+            CancellationToken cancellationToken = _previewCancellation.Token;
+            PreviewContent = null;
+            PreviewError = string.Empty;
+
+            if (_previewFactory is null)
+            {
+                PreviewError = "This plugin does not provide a preview for this setting.";
+                return;
+            }
+
+            try
+            {
+                FrameworkElement? previewContent = await _previewFactory(selectedValue, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                PreviewContent = previewContent;
+
+                if (PreviewContent is null)
+                    PreviewError = "No preview is available for this selection.";
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+            }
+            catch (Exception exception)
+            {
+                PreviewError = $"Preview unavailable: {exception.Message}";
+            }
         }
 
         private JsonElement CreateNumericValue()

@@ -273,12 +273,12 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
                 return;
 
             _settingsPlugin = plugin;
-            Settings.Clear();
+            ClearSettings();
 
             try
             {
                 foreach (PluginSettingDescriptor descriptor in await _pluginManager.GetSettingsAsync(plugin.Identifier))
-                    Settings.Add(new PluginSettingViewModel(descriptor));
+                    Settings.Add(new PluginSettingViewModel(descriptor, (selectedValue, cancellationToken) => _pluginManager.CreateSettingPreviewAsync(plugin.Identifier, descriptor.Key, selectedValue, cancellationToken)));
             }
             catch (Exception ex)
             {
@@ -323,6 +323,14 @@ namespace SimulcastUtility.Wpf.ViewModels.Views
         {
             IsSettingsVisible = false;
             _settingsPlugin = null;
+            ClearSettings();
+        }
+
+        private void ClearSettings()
+        {
+            foreach (PluginSettingViewModel setting in Settings)
+                setting.Dispose();
+
             Settings.Clear();
         }
     }

@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.IO;
 using System.IO.Compression;
 using System.Text.Json;
+using System.Windows;
 
 namespace SimulcastUtility.Plugins.Services
 {
@@ -132,6 +133,26 @@ namespace SimulcastUtility.Plugins.Services
                 PluginRuntime runtime = GetRuntime(pluginIdentifier);
                 await EnsureInitializedAsync(runtime, cancellationToken);
                 return CreateSettingDescriptors(runtime);
+            }
+            finally
+            {
+                _stateLock.Release();
+            }
+        }
+
+        public async Task<FrameworkElement?> CreateSettingPreviewAsync(Guid pluginIdentifier, string settingKey, string selectedValue, CancellationToken cancellationToken = default)
+        {
+            await _stateLock.WaitAsync(cancellationToken);
+
+            try
+            {
+                PluginRuntime runtime = GetRuntime(pluginIdentifier);
+                await EnsureInitializedAsync(runtime, cancellationToken);
+
+                if (runtime.Plugin is not IPluginSettingPreviewProvider previewProvider)
+                    return null;
+
+                return await previewProvider.CreateSettingPreviewAsync(settingKey, selectedValue, cancellationToken);
             }
             finally
             {
