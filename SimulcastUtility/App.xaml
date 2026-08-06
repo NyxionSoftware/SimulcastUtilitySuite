@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:SimulcastUtility">
     <Application.Resources>
         <ResourceDictionary>
+            <BitmapImage x:Key="ApplicationLogoImageSource" UriSource="/SimulcastUtility;component/App-Icon.ico" />
             <ResourceDictionary.MergedDictionaries>
 
                 <ResourceDictionary Source="/SimulcastUtility.Wpf;component/Themes/Default/DefaultTheme.xaml" />

@@ -12,6 +12,7 @@
   <Color x:Key="AccentHoverColor">#8E72FF</Color>
   <Color x:Key="AccentPressedColor">#6748E5</Color>
   <Color x:Key="AccentMutedColor">#2C254E</Color>
+  <Color x:Key="ApplicationLogoOverlayColor">#00000000</Color>
   <Color x:Key="SuccessColor">#35C98A</Color>
   <Color x:Key="WarningColor">#F4B740</Color>
   <Color x:Key="InfoColor">#4C8DFF</Color>

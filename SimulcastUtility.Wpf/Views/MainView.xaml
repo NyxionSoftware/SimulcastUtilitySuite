@@ -35,8 +35,15 @@
                             BorderBrush="{DynamicResource AccentBrush}"
                             BorderThickness="1"
                             CornerRadius="10">
-                        <Image Source="/SimulcastUtility;component/App-Icon.ico"
-                               Stretch="Fill" />
+                        <Grid>
+                            <Image Source="{DynamicResource ApplicationLogoImageSource}" Stretch="Fill" />
+                            <!-- Preserve the original icon detail while allowing themes to tint only its visible pixels. -->
+                            <Rectangle Fill="{DynamicResource ApplicationLogoOverlayBrush}" IsHitTestVisible="False" Opacity="0.34">
+                                <Rectangle.OpacityMask>
+                                    <ImageBrush ImageSource="{DynamicResource ApplicationLogoImageSource}" Stretch="Fill" />
+                                </Rectangle.OpacityMask>
+                            </Rectangle>
+                        </Grid>
                     </Border>
                     <StackPanel Margin="12,0,0,0"
                                 VerticalAlignment="Center">
@@ -54,16 +61,6 @@
                             Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
-                    <Button Margin="0,0,10,0"
-                            Command="{Binding RefreshAllReceiversCommand}"
-                            Style="{DynamicResource IconButtonStyle}"
-                            ToolTip="Refresh all receivers">
-                        <iconPacks:PackIconMaterial Width="18"
-                                                  Height="18"
-                                                  Kind="Refresh"
-                                                  Spin="{Binding IsRefreshingAllReceivers}" />
-                    </Button>
-
                     <Button Margin="0,0,10,0"
                             Command="{Binding ManagePluginsCommand}"
                             MinHeight="38"
@@ -127,6 +124,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Style="{DynamicResource SectionTitleTextStyle}"
@@ -143,6 +141,16 @@
                             <iconPacks:PackIconMaterial Width="17"
                                                       Height="17"
                                                       Kind="Plus" />
+                        </Button>
+                        <Button Grid.Column="2"
+                                Margin="8,0,0,0"
+                                Command="{Binding RefreshAllReceiversCommand}"
+                                Style="{DynamicResource IconButtonStyle}"
+                                ToolTip="Refresh all receivers">
+                            <iconPacks:PackIconMaterial Width="17"
+                                                      Height="17"
+                                                      Kind="Refresh"
+                                                      Spin="{Binding IsRefreshingAllReceivers}" />
                         </Button>
                     </Grid>
 

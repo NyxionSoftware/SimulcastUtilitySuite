@@ -12,6 +12,7 @@
   <SolidColorBrush x:Key="AccentHoverBrush" Color="{DynamicResource AccentHoverColor}"/>
   <SolidColorBrush x:Key="AccentPressedBrush" Color="{DynamicResource AccentPressedColor}"/>
   <SolidColorBrush x:Key="AccentMutedBrush" Color="{DynamicResource AccentMutedColor}"/>
+  <SolidColorBrush x:Key="ApplicationLogoOverlayBrush" Color="{DynamicResource ApplicationLogoOverlayColor}"/>
   <SolidColorBrush x:Key="SuccessBrush" Color="{DynamicResource SuccessColor}"/>
   <SolidColorBrush x:Key="WarningBrush" Color="{DynamicResource WarningColor}"/>
   <SolidColorBrush x:Key="InfoBrush" Color="{DynamicResource InfoColor}"/>

@@ -13,6 +13,7 @@ namespace SimulcastUtility.Plugins
             services.Configure<PluginOptions>(configuration.GetSection(PluginOptions.SectionName));
             services.AddSingleton<IPluginApplicationDispatcher, PluginApplicationDispatcher>();
             services.AddSingleton<IPluginThemeManager, NullPluginThemeManager>();
+            services.AddSingleton<IPluginBrandingManager, NullPluginBrandingManager>();
             services.AddSingleton<IPluginUiManager, NullPluginUiManager>();
             services.AddSingleton<IPluginManager, PluginManager>();
             return services;

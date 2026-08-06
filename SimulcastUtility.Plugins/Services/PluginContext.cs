@@ -6,7 +6,7 @@ namespace SimulcastUtility.Plugins.Services
 {
     internal sealed class PluginContext : IPluginContext
     {
-        public PluginContext(string installationDirectory, IReceiverRepository receiverRepository, IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IPluginApplicationDispatcher applicationDispatcher, IPluginThemeManager themeManager, IPluginUiManager uiManager, IPluginDataStore dataStore, ILogger logger)
+        public PluginContext(string installationDirectory, IReceiverRepository receiverRepository, IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IPluginApplicationDispatcher applicationDispatcher, IPluginThemeManager themeManager, IPluginBrandingManager brandingManager, IPluginUiManager uiManager, IPluginDataStore dataStore, ILogger logger)
         {
             InstallationDirectory = installationDirectory;
             ReceiverRepository = receiverRepository;
@@ -14,6 +14,7 @@ namespace SimulcastUtility.Plugins.Services
             ReceiverCommandManager = receiverCommandManager;
             ApplicationDispatcher = applicationDispatcher;
             ThemeManager = themeManager;
+            BrandingManager = brandingManager;
             UiManager = uiManager;
             DataStore = dataStore;
             Logger = logger;
@@ -30,6 +31,8 @@ namespace SimulcastUtility.Plugins.Services
         public IPluginApplicationDispatcher ApplicationDispatcher { get; }
 
         public IPluginThemeManager ThemeManager { get; }
+
+        public IPluginBrandingManager BrandingManager { get; }
 
         public IPluginUiManager UiManager { get; }
 

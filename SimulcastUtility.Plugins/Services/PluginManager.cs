@@ -22,17 +22,19 @@ namespace SimulcastUtility.Plugins.Services
         private readonly IReceiverCommandManager _receiverCommandManager;
         private readonly IPluginApplicationDispatcher _applicationDispatcher;
         private readonly IPluginThemeManager _pluginThemeManager;
+        private readonly IPluginBrandingManager _pluginBrandingManager;
         private readonly IPluginUiManager _pluginUiManager;
         private readonly List<PluginRuntime> _runtimes = new();
         private readonly SemaphoreSlim _stateLock = new(1, 1);
         private readonly JsonSerializerOptions _serializerOptions = new() { WriteIndented = true };
 
-        public PluginManager(IOptionsMonitor<PluginOptions> options, ILogger<PluginManager> logger, ILoggerFactory loggerFactory, IReceiverRepository receiverRepository, IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IPluginApplicationDispatcher applicationDispatcher, IPluginThemeManager pluginThemeManager, IPluginUiManager pluginUiManager)
+        public PluginManager(IOptionsMonitor<PluginOptions> options, ILogger<PluginManager> logger, ILoggerFactory loggerFactory, IReceiverRepository receiverRepository, IReceiverManager receiverManager, IReceiverCommandManager receiverCommandManager, IPluginApplicationDispatcher applicationDispatcher, IPluginThemeManager pluginThemeManager, IPluginBrandingManager pluginBrandingManager, IPluginUiManager pluginUiManager)
         {
             _options = options;
             _logger = logger;
             _loggerFactory = loggerFactory;
             _pluginThemeManager = pluginThemeManager;
+            _pluginBrandingManager = pluginBrandingManager;
             _pluginUiManager = pluginUiManager;
             _receiverRepository = receiverRepository;
             _receiverManager = receiverManager;
@@ -96,6 +98,7 @@ namespace SimulcastUtility.Plugins.Services
                     finally
                     {
                         await _pluginThemeManager.RemoveResourceDictionaryAsync(pluginIdentifier, cancellationToken);
+                        await _pluginBrandingManager.RemoveApplicationLogoAsync(pluginIdentifier, cancellationToken);
                         await _pluginUiManager.RemovePluginUiAsync(pluginIdentifier, cancellationToken);
                     }
                 }
@@ -228,6 +231,7 @@ namespace SimulcastUtility.Plugins.Services
                         try
                         {
                             await _pluginThemeManager.RemoveResourceDictionaryAsync(runtime.Model.Info.PluginIdentifier, cancellationToken);
+                            await _pluginBrandingManager.RemoveApplicationLogoAsync(runtime.Model.Info.PluginIdentifier, cancellationToken);
                             await _pluginUiManager.RemovePluginUiAsync(runtime.Model.Info.PluginIdentifier, cancellationToken);
                         }
                         catch (Exception ex)
@@ -347,6 +351,7 @@ namespace SimulcastUtility.Plugins.Services
                     finally
                     {
                         await _pluginThemeManager.RemoveResourceDictionaryAsync(runtime.Model.Info.PluginIdentifier, cancellationToken);
+                        await _pluginBrandingManager.RemoveApplicationLogoAsync(runtime.Model.Info.PluginIdentifier, cancellationToken);
                         await _pluginUiManager.RemovePluginUiAsync(runtime.Model.Info.PluginIdentifier, cancellationToken);
                     }
                 }
@@ -491,7 +496,7 @@ namespace SimulcastUtility.Plugins.Services
             IPluginDataStore dataStore = new PluginDataStore(_options.CurrentValue.DataDirectory, runtime.Model.Info.PluginIdentifier);
             string installationDirectory = Path.GetDirectoryName(runtime.Model.AssemblyPath) ?? throw new InvalidOperationException("The plugin installation directory is unavailable.");
             ILogger pluginLogger = _loggerFactory.CreateLogger($"Plugin.{runtime.Model.Info.Name}");
-            IPluginContext pluginContext = new PluginContext(installationDirectory, _receiverRepository, _receiverManager, _receiverCommandManager, _applicationDispatcher, _pluginThemeManager, _pluginUiManager, dataStore, pluginLogger);
+            IPluginContext pluginContext = new PluginContext(installationDirectory, _receiverRepository, _receiverManager, _receiverCommandManager, _applicationDispatcher, _pluginThemeManager, _pluginBrandingManager, _pluginUiManager, dataStore, pluginLogger);
             await runtime.Plugin.InitializeAsync(pluginContext, cancellationToken);
             runtime.DataStore = dataStore;
 

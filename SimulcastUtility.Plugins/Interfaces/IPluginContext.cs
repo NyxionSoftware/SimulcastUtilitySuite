@@ -17,6 +17,8 @@ namespace SimulcastUtility.Plugins.Interfaces
 
         IPluginThemeManager ThemeManager { get; }
 
+        IPluginBrandingManager BrandingManager { get; }
+
         IPluginUiManager UiManager { get; }
 
         IPluginDataStore DataStore { get; }
